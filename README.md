@@ -5,6 +5,8 @@ Final requirement of **BSIT 4D, Group 2**.
 
 > Start smart. Glow naturally.
 
+**Live site: https://dewology-website.vercel.app**
+
 ## What's inside
 
 The site walks through the four graded parts, in order:
@@ -36,6 +38,10 @@ npm run dev
 Then open http://localhost:5173.
 
 `npm run build` makes the finished site in `dist/`. `npm run present-offline` builds it and opens it without needing the internet.
+
+## Publishing
+
+The site is hosted on [Vercel](https://vercel.com). Every push to the `main` branch on GitHub updates the live site automatically, usually within a minute.
 
 ## Editing
 
