@@ -1,0 +1,149 @@
+.footer {
+  padding-top: clamp(120px, 20vh, 220px);
+  padding-bottom: calc(48px + var(--safe-bottom));
+}
+
+.footer__inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The closing frame: logo, tagline and the group, centred */
+.footer__close {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.footer__logo {
+  width: min(100%, 640px);
+  height: auto;
+  overflow: visible;
+}
+
+.footer__tagline {
+  margin-top: clamp(24px, 4vh, 44px);
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--cream);
+  text-wrap: balance;
+}
+
+.footer__credits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: clamp(40px, 7vh, 80px);
+}
+
+.footer__rule {
+  display: block;
+  align-self: stretch;
+  height: 1px;
+  margin-bottom: clamp(10px, 2vh, 22px);
+  background: rgba(232, 199, 135, 0.25);
+}
+
+.footer__names {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px clamp(24px, 3vw, 48px);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--cream);
+}
+
+.footer__group {
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+
+.footer__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: clamp(48px, 10vh, 120px);
+  padding-top: 24px;
+  border-top: 1px solid rgba(232, 199, 135, 0.25);
+  color: var(--muted-on-dark);
+  font-size: var(--text-small);
+}
+
+.footer__meta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Before the closing frame plays: the logo waits to be built, the words
+   wait to settle in (see Footer.jsx; skipped with reduced motion) */
+.footer__inner[data-reform='ready'] .wm-drop {
+  opacity: 0;
+  transform: translateY(-900px) scale(0.26, 0.14);
+}
+
+.footer__inner[data-reform='ready'] .footer__rule {
+  transform: scaleX(0);
+}
+
+.footer__inner[data-reform='ready'] .wm-reveal,
+.footer__inner[data-reform='ready'] .wm-letters-reveal {
+  transform: none;
+}
+
+.footer__inner[data-reform='ready'] .footer__tagline,
+.footer__inner[data-reform='ready'] .footer__names li,
+.footer__inner[data-reform='ready'] .footer__group {
+  opacity: 0;
+}
+
+/* Laptop and TV: the footer is the closing frame. It fills the screen, so
+   the last → lands on it cleanly (nothing of the poster above shows),
+   with the logo, tagline and names in the middle and the credits at the
+   bottom. */
+@media (min-width: 901px) {
+  .footer {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--nav-height) + 24px);
+  }
+
+  .footer__inner {
+    flex: 1;
+    width: 100%;
+  }
+
+  .footer__close {
+    margin-block: auto;
+  }
+
+  .footer__meta {
+    margin-top: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer__meta a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}

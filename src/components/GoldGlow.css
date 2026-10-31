@@ -1,0 +1,25 @@
+.gold-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 199, 135, 0.24) 0%,
+    rgba(232, 199, 135, 0.1) 32%,
+    rgba(232, 199, 135, 0.03) 52%,
+    rgba(232, 199, 135, 0) 68%
+  );
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (max-width: 720px) {
+  .gold-glow {
+    transform-origin: center;
+    scale: 0.65;
+  }
+}

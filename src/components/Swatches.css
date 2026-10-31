@@ -1,0 +1,71 @@
+.swatches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  transition: transform 160ms var(--ease-out);
+}
+
+.swatch:active {
+  transform: scale(0.97);
+}
+
+/* Each chip sits in a contrasting frame (white by default, cream on dark
+   sections), so a swatch that matches its own page never looks empty. */
+.swatch__chip {
+  display: block;
+  width: calc(100% - 12px);
+  margin: 6px 6px 14px;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 6px var(--swatch-frame, #ffffff),
+    0 10px 24px -8px rgba(0, 0, 0, 0.28);
+}
+
+.swatch__name {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.swatch__hex {
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.swatch__hint {
+  font-size: 0.9375rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .swatch:hover .swatch__hint {
+    opacity: 0.85;
+  }
+}
+
+.swatch:focus-visible .swatch__hint {
+  opacity: 0.85;
+}
+
+/* "Copied" stays visible whatever the hover state */
+.swatch[data-copied='true'] .swatch__hint {
+  opacity: 1;
+}

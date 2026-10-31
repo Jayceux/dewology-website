@@ -1,0 +1,16 @@
+node_modules
+dist
+.vercel
+.playwright-mcp
+screenshots
+*.log
+.DS_Store
+
+# Local tool settings
+.claude
+.impeccable/hook.cache.json
+.impeccable/live
+
+# Planning notes (kept on this computer only)
+PLAN.md
+PRODUCT.md

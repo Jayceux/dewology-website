@@ -1,0 +1,299 @@
+.concept {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(120px, 20vh, 220px);
+}
+
+/* ── Story ─────────────────────────────────────────────────── */
+.story {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 64px;
+  scroll-margin-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + 24px);
+}
+
+.story__label {
+  --badge-color: var(--night);
+  --badge-ink: var(--blush);
+  margin-bottom: clamp(24px, 4vh, 40px);
+}
+
+.story__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.story__list li {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 4rem);
+  line-height: 1.2;
+  color: rgba(5, 4, 4, 0.5);
+}
+
+/* The strike line draws across, one item after another */
+.story__struck {
+  position: relative;
+  display: inline-block;
+}
+
+.story__struck::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: 52%;
+  height: 0.06em;
+  min-height: 2px;
+  background: var(--night);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 440ms var(--ease-in-out);
+  transition-delay: calc(var(--i) * 100ms + 200ms);
+}
+
+.story[data-inview='true'] .story__struck::after {
+  transform: scaleX(1);
+}
+
+.story__answer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 540px;
+  flex-shrink: 0;
+}
+
+.story__heading {
+  font-size: clamp(2.25rem, 3.6vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.story__body {
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+/* ── Mission and vision ───────────────────────────────────── */
+.mv {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 9vh, 96px);
+  scroll-margin-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + 24px);
+}
+
+.mv__item {
+  max-width: 21ch;
+  font-size: clamp(1.875rem, 3.6vw, 3.5rem);
+}
+
+.mv__item--offset {
+  align-self: flex-end;
+}
+
+.mv__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: #5a3a18;
+  margin-bottom: 16px;
+}
+
+.mv__drop {
+  width: 10px;
+  height: 15px;
+  color: var(--bronze);
+}
+
+.mv__text {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1em;
+  line-height: 1.18;
+  color: var(--night);
+  text-wrap: balance;
+}
+
+/* ── Founders ──────────────────────────────────────────────── */
+.founders {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 6vh, 64px);
+  scroll-margin-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + 24px);
+}
+
+.founders__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+.founders__heading {
+  font-size: var(--text-h2);
+}
+
+.founders__intro {
+  max-width: 34ch;
+  color: var(--ink);
+}
+
+.founders__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 2.4vw, 40px);
+}
+
+.founder {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Dewdrop-shaped frame (shape defined once in DropClip.jsx) */
+.founder__frame {
+  aspect-ratio: 4 / 5;
+  clip-path: url(#dew-drop-clip);
+}
+
+.founder__fill {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 90% at 50% 70%, #b8894a 0%, #5a3a24 55%, #2a1810 100%);
+  transform: translateY(14%) scale(1.08);
+  opacity: 0;
+  transition: transform 900ms var(--ease-out), opacity 500ms ease;
+  transition-delay: calc(var(--i) * 60ms);
+}
+
+.founders[data-inview='true'] .founder__fill {
+  transform: none;
+  opacity: 1;
+}
+
+.founder__initials {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  letter-spacing: 0.04em;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-top: 18%;
+}
+
+.founder__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 400ms ease, transform 300ms ease;
+}
+
+.founder__photo[data-loaded='true'] {
+  opacity: 1;
+}
+
+/* One gold sheen sweeps across on hover (mouse only). On leave it fades out
+   first and only then jumps back, so it never snaps mid-sweep. */
+.founder__sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 244, 214, 0.45) 50%, transparent 65%);
+  transform: translateX(-110%);
+  opacity: 0;
+  transition: opacity 150ms ease, transform 0s linear 150ms;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .founder:hover .founder__sheen {
+    transform: translateX(110%);
+    opacity: 1;
+    transition: opacity 120ms ease, transform 800ms var(--ease-in-out);
+  }
+
+  .founder:hover .founder__photo {
+    transform: scale(1.03);
+  }
+}
+
+.founder__name {
+  font-weight: 500;
+  font-size: var(--text-body);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ── Laptop and TV: each part is one full-screen frame ────── */
+@media (min-width: 901px) {
+  .concept {
+    gap: 0;
+  }
+
+  .story {
+    align-items: center;
+  }
+
+  .mv,
+  .founders {
+    justify-content: center;
+  }
+}
+
+/* ── Phone and tablet ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .story {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  .story__answer {
+    max-width: none;
+  }
+
+  .mv__item--offset {
+    align-self: flex-start;
+  }
+
+  .founders__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .founders__list {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story__struck::after {
+    transition: none;
+  }
+
+  .founder__fill {
+    transform: none;
+    transition: opacity 300ms ease;
+  }
+}

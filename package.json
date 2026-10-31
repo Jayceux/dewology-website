@@ -1,0 +1,29 @@
+{
+  "name": "dewology-website",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Dewology brand portfolio site (BSIT 4D, Group 2)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "present-offline": "vite build && vite preview --open"
+  },
+  "dependencies": {
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/montserrat": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "@fontsource/tinos": "^5.3.0",
+    "lenis": "^1.3.27",
+    "motion": "^14.7.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "three": "^0.186.1",
+    "vite": "^8.3.5"
+  }
+}

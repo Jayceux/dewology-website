@@ -1,0 +1,15 @@
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--night);
+  pointer-events: none;
+}
+
+.bg-glow__layer {
+  position: absolute;
+  /* a little past every edge: a layer that stops exactly at the edge can
+     leave a 1px dark seam next to the scrollbar */
+  inset: -2px;
+  will-change: opacity;
+}

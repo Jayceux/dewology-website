@@ -1,0 +1,78 @@
+/* ─────────────────────────────────────────────────────────────
+   DESIGN TOKENS: every color, font, size and curve in one place.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Primary identity (CT#1) */
+  --night: #050404;
+  --gold: #e8c787;
+  --bronze: #b8894a;
+  --gold-gradient: linear-gradient(140deg, #f3dfae 0%, #e8c787 38%, #b8894a 100%);
+
+  /* Site-only supporting tones (used for the night-to-blush warm-up) */
+  --ember: #3a2418;
+  --blush: #e4c7b9;
+  --cream: #f6e7de; /* light text on dark */
+  --ink: #2a1a12; /* body text on blush */
+  --muted-on-dark: #d9cbbf;
+
+  /* CT#2 brand post palette */
+  --ct2-blush: #e4c7b9;
+  --ct2-terracotta: #8b2e16;
+
+  /* CT#3 poster palette */
+  --ct3-light: #f3b6be;
+  --ct3-mid: #e98d97;
+  --ct3-deep: #cf5b6e;
+
+  /* Fonts */
+  --font-display: 'Cinzel', 'Times New Roman', serif; /* stand-in for Trajan Pro */
+  --font-body: 'Montserrat', system-ui, sans-serif;
+  --font-ct2-headline: 'Poppins', system-ui, sans-serif;
+  --font-ct2-accent: 'Cormorant Garamond', Georgia, serif;
+  --font-ct3: 'Tinos', 'Times New Roman', serif;
+
+  /* Type scale (sized up slightly so it reads on a projector) */
+  --text-hero: clamp(2.125rem, 6.1vw, 6rem);
+  --text-h2: clamp(2.25rem, 4.4vw, 4.75rem);
+  --text-h3: clamp(1.5rem, 2.3vw, 2.5rem);
+  --text-lead: clamp(1.125rem, 1rem + 0.45vw, 1.375rem);
+  --text-body: clamp(1rem, 0.96rem + 0.22vw, 1.1875rem);
+  --text-small: 0.9375rem;
+
+  /* Layout */
+  --gutter: clamp(16px, 7vw, 120px);
+  /* Phones in landscape: keep content clear of the notch (needs viewport-fit=cover) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --gutter-l: max(var(--gutter), env(safe-area-inset-left, 0px));
+  --gutter-r: max(var(--gutter), env(safe-area-inset-right, 0px));
+  --section-pad: clamp(96px, 16vh, 200px);
+  --nav-height: 88px;
+  --content-max: 1280px;
+  /* Left/right inset that lines fixed elements (menu) up with the content column */
+  --page-inset: max(var(--gutter), calc((100vw - var(--content-max)) / 2));
+  --page-inset-l: max(var(--page-inset), env(safe-area-inset-left, 0px));
+  --page-inset-r: max(var(--page-inset), env(safe-area-inset-right, 0px));
+
+  /* Motion (Emil Kowalski curves) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --nav-height: 64px;
+  }
+}
+
+/* TV tier: the site is presented on a 1920×1080 TV viewed from across a
+   classroom, so labels and body text step up on wide screens. */
+@media (min-width: 1600px) {
+  :root {
+    --text-small: 1.125rem;
+    --text-body: 1.25rem;
+    --text-lead: 1.5rem;
+  }
+}

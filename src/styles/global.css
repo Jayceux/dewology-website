@@ -1,0 +1,219 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  /* no grey flash on tap; every control has its own :active feedback */
+  -webkit-tap-highlight-color: transparent;
+  /* --page-bg follows the section on screen (set in site.jsx) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 137, 74, 0.7) var(--page-bg, var(--night));
+}
+
+/* Fire taps immediately (no double-tap-zoom wait) */
+button,
+a,
+[role='button'],
+[role='slider'] {
+  touch-action: manipulation;
+}
+
+/* Long-press should not select a control's label (content text stays selectable) */
+button,
+[role='button'],
+.nav__links a {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--night);
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+[data-theme='light'] :focus-visible {
+  outline-color: var(--night);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Sections paint no background of their own: the fixed BackgroundGlow layer
+   behind them crossfades between each section's color as you scroll. */
+.section {
+  position: relative;
+  z-index: 1;
+  padding: var(--section-pad) var(--gutter-r) var(--section-pad) var(--gutter-l);
+  overflow-x: clip; /* glows may spill down, never sideways (no phone side-scroll) */
+}
+
+/* Extra runway so the night-to-blush warm-up has room to happen */
+.section[data-via] {
+  padding-top: 75vh;
+}
+
+.section[data-theme='dark'] {
+  color: var(--cream);
+}
+
+.section[data-theme='light'] {
+  color: var(--night);
+}
+
+.section__inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* ── Presentation frames ─────────────────────────────────────
+   → / Page Down lands each stop at the top of the screen. On laptop and
+   TV screens a frame is exactly one screen tall and centres its content
+   under the menu, so every stop shows one whole thing and nothing of the
+   next. Phones scroll freely, so there content keeps its natural height. */
+@media (min-width: 901px) {
+  .frame {
+    min-height: 100svh;
+    padding-top: calc(var(--nav-height) + 24px);
+    padding-bottom: 56px;
+  }
+}
+
+/* Requirement badge ("CT#1 Logo design"): what the professor is grading,
+   so it reads from across the room. Colours come from each section. */
+.ct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  width: fit-content;
+  padding: 5px 22px 5px 5px;
+  border: 1.5px solid var(--badge-color, currentColor);
+  border-radius: 999px;
+  color: var(--badge-color, currentColor);
+  font-family: var(--font-body);
+  font-size: var(--text-lead);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ct-badge__num {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--badge-color, currentColor);
+  color: var(--badge-ink, #fff);
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Phones: just the filled pill and the words after it, so a long badge
+   ("Business concept · Sample products") can wrap under the pill cleanly */
+@media (max-width: 480px) {
+  .ct-badge {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 0;
+    border: 0;
+  }
+
+  .ct-badge > span {
+    white-space: nowrap;
+  }
+
+  .ct-badge__num {
+    padding: 6px 14px;
+    font-size: 1em;
+  }
+}
+
+/* Gentle pill button used across the site */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--night);
+  font-weight: 500;
+  font-size: var(--text-body);
+  text-decoration: none;
+  transition: transform 160ms var(--ease-out), background-color 200ms ease;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    background: #f0d59f;
+  }
+}

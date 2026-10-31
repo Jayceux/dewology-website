@@ -1,0 +1,175 @@
+.hero {
+  min-height: 100svh;
+  display: flex;
+  padding-top: calc(var(--nav-height) + 16px);
+  padding-bottom: clamp(32px, 6vh, 80px);
+}
+
+.hero__stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Name and words on the left, the live Glow Serum on the right */
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(18px, 2.6vh, 30px);
+  min-width: 0;
+}
+
+/* The brand name is the headline: the secondary logo, drawn live */
+.hero__brand {
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: clamp(4px, 1.2vh, 14px);
+}
+
+.hero__wordmark {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* The name in plain type under the logo: from across the room the gold
+   mark doesn't read as a "D", so this spells the whole word out */
+.hero__name {
+  display: block;
+  margin-top: clamp(12px, 2vh, 22px);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.62rem + 0.95vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hero__tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.1vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.12;
+  color: var(--cream);
+  white-space: nowrap;
+}
+
+/* Each tagline line is a window; the text rises into it during the intro */
+.hero__line {
+  display: block;
+  overflow: clip;
+  overflow-clip-margin: 0.08em;
+}
+
+.hero__line-inner {
+  display: block;
+}
+
+.hero__intro {
+  max-width: 34ch;
+  font-size: var(--text-lead);
+  line-height: 1.6;
+  color: var(--muted-on-dark);
+}
+
+.hero__product {
+  position: relative;
+  height: min(80vh, 880px);
+  min-height: 420px;
+}
+
+/* After the intro, the gold shine passes over the name now and then */
+@keyframes hero-shine-again {
+  0%,
+  84% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(1500px);
+  }
+}
+
+html:not([data-intro='play']) .hero .wm-shine {
+  animation: hero-shine-again 10s cubic-bezier(0.4, 0, 0.2, 1) 3s infinite;
+}
+
+.hero__skip {
+  position: fixed;
+  right: var(--page-inset-r);
+  bottom: calc(16px + var(--safe-bottom));
+  z-index: 40;
+  padding: 10px 4px;
+  border: 0;
+  background: none;
+  color: var(--muted-on-dark);
+  font-size: var(--text-small);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  opacity: 0.8;
+}
+
+/* ── Starting positions while the intro is about to play ───── */
+html[data-intro='play'] .hero .wm-drop {
+  transform: translateY(-900px) scale(0.26, 0.14);
+}
+
+html[data-intro='play'] .hero .wm-reveal,
+html[data-intro='play'] .hero .wm-letters-reveal {
+  transform: none;
+}
+
+html[data-intro='play'] .hero__line-inner {
+  transform: translateY(108%);
+}
+
+html[data-intro='play'] .hero__name,
+html[data-intro='play'] .hero__intro,
+html[data-intro='play'] .hero__cta,
+html[data-intro='play'] .hero .gold-glow,
+html[data-intro='play'] .nav,
+html[data-intro='play'] .progress-drop {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .wm-shine {
+    animation: none !important;
+  }
+}
+
+/* ── Phone ─────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .hero {
+    padding-top: var(--nav-height);
+  }
+
+  .hero__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .hero__product {
+    order: -1;
+    height: 34svh;
+    min-height: 240px;
+  }
+
+  .hero__copy {
+    gap: 16px;
+  }
+}

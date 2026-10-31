@@ -1,0 +1,141 @@
+/* CT#3 uses its own monochromatic pink palette (#F3B6BE, #E98D97, #CF5B6E)
+   and fonts (Tinos, Montserrat). Small UI text uses a deeper pink so it
+   stays readable on a projector; the swatches show the exact codes. */
+
+.section.ct3 {
+  --ct3-ink: #8a2c40;
+  color: var(--ct3-ink);
+  padding-top: calc(var(--nav-height) + 20px);
+}
+
+.ct3__layout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(40px, 6vw, 112px);
+}
+
+/* ── The poster, revealed through a growing dewdrop ───────── */
+.ct3__poster {
+  margin: 0;
+  height: min(78vh, 840px);
+  /* the artwork ends at about 83% of the image height; the plain band
+     below it is cropped off (1900 of 2160 px kept) */
+  aspect-ratio: 1220 / 1900;
+  border-radius: 6px;
+  /* shadow appears as the drop finishes opening */
+  box-shadow: 0 40px 80px -30px rgba(140, 40, 60, 0), 0 12px 24px -12px rgba(140, 40, 60, 0);
+  transition: box-shadow 700ms ease 700ms;
+}
+
+.ct3__poster[data-inview='true'] {
+  box-shadow: 0 40px 80px -30px rgba(140, 40, 60, 0.45), 0 12px 24px -12px rgba(140, 40, 60, 0.3);
+}
+
+.ct3__poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+  border-radius: inherit;
+  -webkit-mask-image: url('/assets/logo/drop-mask.svg');
+  mask-image: url('/assets/logo/drop-mask.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 50% 42%;
+  mask-position: 50% 42%;
+  -webkit-mask-size: 14% auto;
+  mask-size: 14% auto;
+  transition:
+    -webkit-mask-size 1300ms var(--ease-in-out),
+    mask-size 1300ms var(--ease-in-out);
+}
+
+/* 430% is just enough for the drop to cover the whole poster, so the
+   opening stays visible for the full duration */
+.ct3__poster[data-inview='true'] img {
+  -webkit-mask-size: 430% auto;
+  mask-size: 430% auto;
+}
+
+/* ── Palette and type ─────────────────────────────────────── */
+.ct3__details {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vh, 44px);
+}
+
+.ct3__label {
+  --badge-color: var(--ct3-ink);
+  --badge-ink: #ffffff;
+}
+
+.ct3__details .swatches {
+  grid-template-columns: repeat(3, minmax(0, 200px));
+}
+
+/* The sample keeps the poster's deep pink, shown on white so it reads */
+.ct3__details .specimen__sample {
+  font-size: clamp(1.75rem, 2.6vw, 2.75rem);
+  color: var(--ct3-deep);
+  background: #ffffff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.ct3__details .specimen__glyphs {
+  color: var(--ct3-ink);
+}
+
+/* Laptop and TV: poster, palette and type as one centred full-screen frame */
+@media (min-width: 901px) {
+  .section.ct3 {
+    min-height: 100svh;
+    padding-bottom: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .section.ct3 > .section__inner {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  /* one column, with the CT#3 label above the poster */
+  .ct3__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .ct3__details {
+    display: contents;
+  }
+
+  .ct3__label {
+    order: -1;
+  }
+
+  .ct3__poster {
+    height: auto;
+    width: min(100%, 420px);
+    justify-self: center;
+  }
+
+  .ct3__details .swatches {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct3__poster img {
+    -webkit-mask-image: none;
+    mask-image: none;
+    transition: none;
+  }
+}

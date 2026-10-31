@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dewology product studio</title>
+    <style>
+      body { margin: 0; background: #2a1f1c; color: #f6e7de; font: 14px Montserrat, system-ui, sans-serif; }
+      header { padding: 16px 24px; display: flex; gap: 16px; align-items: center; }
+      button { padding: 8px 16px; border-radius: 999px; border: 1px solid #e8c787; background: none; color: #e8c787; cursor: pointer; }
+      #out { display: flex; flex-wrap: wrap; gap: 16px; padding: 0 24px 24px; }
+      #out figure { margin: 0; background: repeating-conic-gradient(#3a2d29 0 25%, #2f2421 0 50%) 0 0 / 24px 24px; }
+      #out img { display: block; max-height: 360px; }
+      #out figcaption { padding: 6px 8px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Dewology product studio</strong>
+      <span>Renders the product images into public/assets/products/ (dev only).</span>
+      <button id="render">Render and save all</button>
+      <span id="status"></span>
+    </header>
+    <div id="out"></div>
+    <script type="module" src="/src/studio/studio.js"></script>
+  </body>
+</html>

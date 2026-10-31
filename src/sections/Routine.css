@@ -1,0 +1,383 @@
+/* ── Heading ───────────────────────────────────────────────── */
+.routine__head {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 36ch);
+  grid-template-areas:
+    'label label'
+    'heading intro';
+  align-items: end;
+  column-gap: 48px;
+  row-gap: 16px;
+  padding-top: calc(var(--nav-height) + 24px);
+}
+
+.routine__label {
+  grid-area: label;
+  --badge-color: var(--gold);
+  --badge-ink: var(--night);
+  margin-bottom: clamp(8px, 2vh, 24px);
+}
+
+.routine__heading {
+  grid-area: heading;
+  font-size: var(--text-h2);
+  color: var(--cream);
+}
+
+.routine__intro {
+  grid-area: intro;
+  color: var(--muted-on-dark);
+}
+
+/* The lineup: each render is cropped to a 560 × 1040 window around its
+   bottle (same window for all five, so sizes and floor stay true) */
+.routine__lineup {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .routine__head {
+    grid-template-areas:
+      'label label'
+      'heading intro'
+      'lineup lineup';
+  }
+
+  .routine__lineup {
+    --h: min(44vh, 470px);
+    grid-area: lineup;
+    list-style: none;
+    margin: clamp(24px, 4vh, 48px) 0 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .routine__lineup li {
+    position: relative;
+    flex: 0 0 auto;
+    height: var(--h);
+    aspect-ratio: 560 / 1040;
+    margin-inline: calc(var(--h) * 560 / 1040 * -0.08);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 500ms var(--ease-out),
+      transform 700ms var(--ease-out);
+    transition-delay: calc(var(--i) * 70ms + 120ms);
+  }
+
+  .routine__head[data-inview='true'] .routine__lineup li {
+    opacity: 1;
+    transform: none;
+  }
+
+  .routine__lineup img {
+    position: absolute;
+    left: -42.857%; /* 240 / 560 */
+    top: -6.731%; /* 70 / 1040 */
+    width: 178.571%; /* 1000 / 560 */
+    max-width: none;
+    height: auto;
+  }
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .routine__lineup li {
+    transform: none;
+    transition: opacity 300ms ease;
+  }
+}
+
+/* ── Desktop: pinned product, scrolling steps ──────────────── */
+.steps {
+  position: relative;
+  height: calc(100vh + var(--count) * 70vh);
+  margin-top: clamp(24px, 4vh, 48px);
+}
+
+.steps__marker {
+  position: absolute;
+  left: 0;
+  top: calc((100% - 100vh) * var(--at));
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.steps__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding-top: var(--nav-height);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 80px);
+}
+
+.steps__stage {
+  position: relative;
+  height: calc(100vh - var(--nav-height) - 48px);
+  max-height: 760px;
+}
+
+.steps__glow {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 90%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 199, 135, 0.22) 0%, rgba(232, 199, 135, 0.07) 40%, rgba(232, 199, 135, 0) 68%);
+  pointer-events: none;
+}
+
+.steps__bignum {
+  position: absolute;
+  left: 2%;
+  top: 46%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: min(48vh, 26vw);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(232, 199, 135, 0.4);
+  pointer-events: none;
+}
+
+.steps__product {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.steps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  width: 100%;
+  padding: 18px 0;
+  border: 0;
+  border-top: 1px solid rgba(232, 199, 135, 0.2);
+  background: none;
+  color: var(--cream);
+  text-align: left;
+  opacity: 0.55; /* still 4.5:1 for the step descriptions */
+  transition: opacity 200ms ease;
+}
+
+/* The current step gets the same small gold drop as the menu's current link */
+.step::before {
+  content: '';
+  position: absolute;
+  left: -32px;
+  top: 32px; /* level with the step number */
+  width: 14px;
+  height: 14px;
+  border-radius: 50% 0 50% 50%;
+  background: var(--gold);
+  transform: translateY(-50%) rotate(-45deg) scale(0.4);
+  opacity: 0;
+  transition: opacity 200ms ease, transform 300ms var(--ease-out);
+}
+
+.step[aria-current='step']::before {
+  opacity: 1;
+  transform: translateY(-50%) rotate(-45deg) scale(1);
+}
+
+.steps__list li:last-child .step {
+  border-bottom: 1px solid rgba(232, 199, 135, 0.2);
+}
+
+.step[aria-current='step'] {
+  opacity: 1;
+}
+
+.step:active {
+  opacity: 0.7;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .step:hover {
+    opacity: 0.8;
+  }
+}
+
+.step__num {
+  flex-shrink: 0;
+  width: 1.4em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step__name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.6vw, 1.625rem);
+  line-height: 1.2;
+}
+
+.step__text {
+  color: var(--muted-on-dark);
+  font-size: var(--text-body);
+}
+
+/* ── Phone: stacked list ───────────────────────────────────── */
+.stack {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.stack__stage {
+  position: relative;
+  width: min(72%, 320px);
+  margin: 0 auto;
+}
+
+.stack__product {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+.stack__copy {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 16px;
+  row-gap: 4px;
+  align-items: baseline;
+}
+
+.stack__copy .step__text {
+  grid-column: 2;
+}
+
+/* ── Starter Kit ───────────────────────────────────────────── */
+.kit {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.6fr);
+  align-items: center;
+  gap: clamp(32px, 4vw, 72px);
+  padding-top: calc(var(--nav-height) + 40px);
+  min-height: 100vh;
+}
+
+.kit__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.kit__name {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--cream);
+}
+
+.kit__text {
+  color: var(--muted-on-dark);
+  max-width: 30ch;
+}
+
+.kit__toggle {
+  margin-top: 8px;
+  padding: 12px 22px;
+  min-height: 44px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: none;
+  color: var(--gold);
+  font-weight: 500;
+  transition: transform 160ms var(--ease-out), background-color 200ms ease;
+}
+
+.kit__toggle:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kit__toggle:hover {
+    background: rgba(232, 199, 135, 0.1);
+  }
+}
+
+.kit__stage {
+  position: relative;
+  aspect-ratio: 1600 / 1100;
+}
+
+.kit__glow {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 80%;
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(232, 199, 135, 0.2), rgba(232, 199, 135, 0));
+  pointer-events: none;
+}
+
+.kit__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.kit__bottles {
+  position: absolute;
+  inset: 0;
+}
+
+@media (min-width: 901px) {
+  .routine__head {
+    align-content: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .routine__head {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'label' 'heading' 'intro';
+  }
+
+  .kit {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .kit__stage {
+    order: -1;
+  }
+}

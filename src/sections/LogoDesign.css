@@ -1,0 +1,714 @@
+/* CT#1 uses its own identity: black #050404, gold #E8C787 → #B8894A,
+   Cinzel (for Trajan Pro) and Montserrat. */
+
+.ct1__intro {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 36ch);
+  grid-template-areas:
+    'label label'
+    'heading lede';
+  align-items: end;
+  gap: 16px 48px;
+  padding-top: calc(var(--nav-height) + 24px);
+}
+
+.ct1__label {
+  grid-area: label;
+  --badge-color: var(--gold);
+  --badge-ink: var(--night);
+}
+
+.ct1 {
+  --swatch-frame: #f6e7de;
+}
+
+.ct1__heading {
+  grid-area: heading;
+  font-size: var(--text-h2);
+  color: var(--cream);
+}
+
+.ct1__lede {
+  grid-area: lede;
+  color: var(--muted-on-dark);
+}
+
+.ct1__subheading {
+  font-size: var(--text-h2);
+  color: var(--cream);
+}
+
+/* ── Process timeline (desktop) ────────────────────────────── */
+.process {
+  position: relative;
+  height: calc(100vh + (var(--count) - 1) * 90vh);
+}
+
+.process__marker {
+  position: absolute;
+  left: 0;
+  top: calc((100% - 100vh) * var(--at));
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.process__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding-top: calc(var(--nav-height) + 16px);
+  padding-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(28px, 5vh, 56px);
+}
+
+/* Finished stages disappear at the content's left edge (not into the margin);
+   upcoming ones may still peek in from the right. */
+.process__viewport {
+  clip-path: inset(-40% -100vw -40% 0);
+}
+
+.process__track {
+  --visual-h: min(44vh, 420px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: clamp(48px, 6vw, 112px);
+  will-change: transform;
+}
+
+.stage {
+  flex: 0 0 clamp(340px, 52vw, 820px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vh, 32px);
+  opacity: 0.38;
+  transition: opacity 300ms ease;
+}
+
+.stage[data-active='true'] {
+  opacity: 1;
+}
+
+/* Finished stages fade away as they slide out, instead of being sliced
+   off at the left edge */
+.stage[data-past='true'] {
+  opacity: 0;
+}
+
+.stage[data-final='true'] {
+  flex-basis: clamp(300px, 34vw, 520px);
+}
+
+.stage__copy {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+}
+
+.stage__num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.25rem, 3.4vw, 3.25rem);
+  line-height: 1;
+  color: var(--gold);
+}
+
+.stage__title {
+  font-size: var(--text-h3);
+  color: var(--cream);
+}
+
+.stage__text {
+  margin-top: 6px;
+  color: var(--muted-on-dark);
+  max-width: 44ch;
+}
+
+.stage__source {
+  color: var(--gold);
+}
+
+.stage__visual {
+  height: var(--visual-h);
+  display: flex;
+  align-items: center;
+}
+
+.process__drop {
+  height: 100%;
+  width: auto;
+}
+
+.process__final {
+  height: 100%;
+  width: auto;
+}
+
+.process__crops {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+}
+
+.sketch-crop {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.process__crop {
+  width: min(calc(var(--visual-h) * var(--ratio)), calc((100% - (var(--n) - 1) * 16px) / var(--n)));
+}
+
+/* progress rail with the five stage names */
+.process__rail {
+  position: relative;
+}
+
+.process__rail-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 1px;
+  background: rgba(232, 199, 135, 0.22);
+}
+
+.process__rail-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform-origin: left center;
+}
+
+.process__rail ol {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.process__rail button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0 0 4px;
+  border: 0;
+  background: none;
+  color: var(--muted-on-dark);
+  font-size: var(--text-small);
+  opacity: 0.7;
+  transition: opacity 200ms ease, color 200ms ease;
+}
+
+.process__rail li:last-child button {
+  align-items: flex-end;
+}
+
+.process__rail button[aria-current='step'] {
+  color: var(--cream);
+  opacity: 1;
+}
+
+.process__rail button:active .process__dot {
+  transform: scale(0.85);
+}
+
+.process__dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--night);
+  border: 1.5px solid var(--gold);
+  transition: transform 120ms var(--ease-out), background-color 200ms ease;
+}
+
+.process__rail button[aria-current='step'] .process__dot {
+  background: var(--gold);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .process__rail button:hover {
+    opacity: 1;
+  }
+}
+
+/* ── Process (phone): stacked ──────────────────────────────── */
+.process-stack {
+  --visual-h: 56vw;
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+.process-stack .stage {
+  opacity: 1;
+}
+
+.process-stack .process__crops {
+  gap: 8px;
+}
+
+.process-stack .process__crop {
+  width: min(calc(var(--visual-h) * var(--ratio)), calc((100% - (var(--n) - 1) * 8px) / var(--n)));
+}
+
+/* ── Final marks ───────────────────────────────────────────── */
+.marks {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(32px, 5vh, 56px);
+  padding-top: calc(var(--nav-height) + 40px);
+}
+
+.marks__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.marks__card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.marks__card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted-on-dark);
+}
+
+.marks__card figcaption strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.375rem;
+  color: var(--cream);
+}
+
+.marks__art {
+  position: relative;
+  overflow: hidden;
+  height: min(62vh, 600px);
+  border-radius: 20px;
+  border: 1px solid rgba(232, 199, 135, 0.22);
+  background: var(--night);
+  display: grid;
+  place-items: center;
+}
+
+.marks__primary {
+  position: relative;
+  z-index: 1;
+  height: 78%;
+}
+
+.marks__primary svg {
+  height: 100%;
+  width: auto;
+}
+
+.marks__art--secondary img {
+  width: 76%;
+  height: auto;
+}
+
+/* ── Gestalt explainer ─────────────────────────────────────── */
+/* Desktop/TV: the figure stays pinned while → steps through the three
+   principles (one presentation stop each). Phone: stacked. */
+
+.gestalt-scroll {
+  position: relative;
+  height: calc(100vh + (var(--count) - 1) * 80vh);
+}
+
+.gestalt-scroll__marker {
+  position: absolute;
+  left: 0;
+  top: calc((100% - 100vh) * var(--at));
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.gestalt-scroll__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding-top: calc(var(--nav-height) + 16px);
+  padding-bottom: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: center;
+}
+
+.gestalt__head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gestalt__intro {
+  max-width: 34ch;
+  color: var(--muted-on-dark);
+  font-size: var(--text-lead);
+}
+
+.gestalt__stage {
+  position: relative;
+  aspect-ratio: 640 / 790;
+  /* sized by width so the box keeps the drawing's exact shape (the lens relies on it) */
+  width: min(100%, calc((100vh - var(--nav-height) - 64px) * 640 / 790));
+  justify-self: center;
+}
+
+.gestalt__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.gestalt__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.gestalt__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gestalt__button {
+  min-height: 48px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gold);
+  background: none;
+  color: var(--gold);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms var(--ease-out);
+}
+
+.gestalt__button:active {
+  transform: scale(0.97);
+}
+
+.gestalt__button[aria-pressed='true'] {
+  background: var(--gold);
+  color: var(--night);
+}
+
+.gestalt__text {
+  font-family: var(--font-body);
+  font-size: var(--text-lead);
+  line-height: 1.6;
+  color: var(--cream);
+  max-width: 40ch;
+}
+
+.gestalt__hint {
+  color: var(--gold);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+
+.gestalt__hint[data-show='false'] {
+  visibility: hidden;
+}
+
+/* ── One principle drawn on the logo ───────────────────────── */
+.gfig {
+  position: absolute;
+  inset: 0;
+}
+
+.gfig__mark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gfig--wide {
+  display: flex;
+  align-items: center;
+}
+
+.gfig__wide {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Figure-ground: the figure lifts off the ground; the gaps light up */
+.gfig[data-mode='figure-ground'] .gp {
+  filter: drop-shadow(0 8px 14px rgba(232, 199, 135, 0.3));
+}
+
+/* the dark gaps (ground) light up in place */
+.gfig__gap {
+  fill: #fff4d6;
+  opacity: 0;
+  transition: opacity 600ms ease 200ms;
+}
+
+.gfig.is-active .gfig__gap {
+  opacity: 0.95;
+}
+
+.gfig__labels {
+  opacity: 0;
+  transition: opacity 400ms ease 450ms;
+}
+
+.gfig.is-active .gfig__labels {
+  opacity: 1;
+}
+
+/* Closure: the three shapes ease apart; the whole they make stays visible */
+.gp {
+  transition: transform 700ms var(--ease-in-out);
+}
+
+.gfig.is-active[data-mode='closure'] .gp--drop {
+  transform: translate(16px, -14px);
+}
+
+.gfig.is-active[data-mode='closure'] .gp--hair {
+  transform: translate(-16px, 10px);
+}
+
+.gfig__whole {
+  fill: none;
+  stroke: #f6e7de;
+  stroke-width: 2.5;
+  stroke-dasharray: 10 9;
+  opacity: 0;
+  transition: opacity 500ms ease 450ms;
+}
+
+.gfig.is-active .gfig__whole {
+  opacity: 1;
+}
+
+/* Continuity: one line flows from the drop, down the hair, into EWOLOGY */
+.gfig__flow {
+  fill: none;
+  stroke: #fff4d6;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.gfig.is-active .gfig__flow {
+  animation: gestalt-trace 1.6s var(--ease-in-out) 0.2s forwards;
+}
+
+.gfig__flow-start {
+  fill: #fff4d6;
+}
+
+.gfig__flow-head {
+  fill: #fff4d6;
+  opacity: 0;
+  transition: opacity 200ms ease 1.7s;
+}
+
+.gfig.is-active .gfig__flow-head {
+  opacity: 1;
+}
+
+@keyframes gestalt-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── Phone: stacked principles ─────────────────────────────── */
+.gestalt-stack {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+
+.gestalt-stack__item {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gestalt-stack__item .gestalt__stage {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.gestalt-stack__title {
+  font-size: var(--text-h3);
+  color: var(--cream);
+}
+
+/* the dew-drop magnifier */
+.lens {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--night);
+  cursor: grab;
+  touch-action: none;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(232, 199, 135, 0.8),
+    inset 8px 12px 24px rgba(255, 244, 214, 0.18),
+    0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+.lens:active {
+  cursor: grabbing;
+}
+
+.lens__inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.lens__inner svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lens__shine {
+  position: absolute;
+  left: 18%;
+  top: 12%;
+  width: 34%;
+  height: 16%;
+  border-radius: 50%;
+  background: rgba(255, 248, 232, 0.4);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ── Palette and type ──────────────────────────────────────── */
+.ct1-palette {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(32px, 5vh, 56px);
+  padding-top: calc(var(--nav-height) + 40px);
+  color: var(--cream);
+}
+
+/* ── Laptop and TV: the CT#1 opener is a centred title frame ── */
+@media (min-width: 901px) {
+  .ct1__intro {
+    align-content: center;
+  }
+
+  .ct1-palette {
+    justify-content: center;
+  }
+}
+
+/* Wide screens: palette on the left, type on the right (the same split
+   as CT#2 and CT#3), so the whole stop fits one screen */
+@media (min-width: 1100px) {
+  .ct1-palette {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      'heading specimens'
+      'swatches specimens';
+    align-content: center;
+    align-items: start;
+    column-gap: clamp(48px, 6vw, 112px);
+    row-gap: clamp(28px, 4vh, 44px);
+  }
+
+  .ct1-palette > .ct1__subheading {
+    grid-area: heading;
+  }
+
+  .ct1-palette > .swatches {
+    grid-area: swatches;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ct1-palette > .specimens {
+    grid-area: specimens;
+    align-self: center;
+  }
+}
+
+/* ── Phone ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ct1__intro {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'label' 'heading' 'lede';
+  }
+
+  .marks__grid,
+  .gestalt__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .marks__art {
+    height: 70vw;
+  }
+
+  .gestalt__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .gestalt {
+    padding-top: calc(var(--nav-height) + 40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gfig__flow,
+  .gfig.is-active .gfig__flow {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .gp,
+  .gfig__gap,
+  .gfig__labels,
+  .gfig__whole,
+  .gfig__flow-head {
+    transition: none;
+  }
+
+  .stage {
+    transition: none;
+  }
+}

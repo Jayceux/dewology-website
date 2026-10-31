@@ -1,0 +1,80 @@
+.specimens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.specimen {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.32fr) 1fr;
+  gap: 8px 32px;
+  padding: clamp(20px, 3vh, 32px) 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.specimen:last-child {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.specimen__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  grid-row: span 2;
+}
+
+.specimen__name {
+  font-weight: 600;
+}
+
+.specimen__role {
+  font-size: var(--text-small);
+}
+
+.specimen__sample {
+  font-size: clamp(1.75rem, 3.2vw, 3rem);
+  line-height: 1.15;
+  outline: none;
+  border-radius: 6px;
+  caret-color: currentColor;
+  overflow-wrap: anywhere;
+}
+
+.specimen__sample:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 6px;
+}
+
+.specimen__glyphs {
+  font-size: var(--text-small);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.specimen__logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.specimen__logo img {
+  width: min(360px, 100%);
+  height: auto;
+}
+
+.specimen__note {
+  font-size: var(--text-small);
+}
+
+@media (max-width: 720px) {
+  .specimen {
+    grid-template-columns: 1fr;
+  }
+
+  .specimen__meta {
+    grid-row: auto;
+  }
+}

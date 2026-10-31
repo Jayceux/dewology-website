@@ -1,0 +1,19 @@
+/* Resting states of the logo-build layers (see WordmarkBuild.jsx):
+   everything shown, the shine parked to the left of the name.
+   Each place that plays the build sets its own starting positions. */
+.wm-drop {
+  transform-box: fill-box;
+  transform-origin: 50% 6%;
+}
+
+.wm-reveal {
+  transform: translateY(1000px);
+}
+
+.wm-letters-reveal {
+  transform: translateX(1000px);
+}
+
+.wm-shine {
+  transform: translateX(0);
+}

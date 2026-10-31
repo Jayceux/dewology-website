@@ -1,0 +1,411 @@
+/* CT#2 uses its own palette and fonts:
+   blush #E4C7B9, terracotta #8B2E16, Poppins SemiBold, Cormorant Garamond Italic. */
+
+.section.ct2 {
+  color: var(--ct2-terracotta);
+  padding-top: calc(var(--nav-height) + 20px);
+}
+
+.ct2__layout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'phone intro'
+    'phone details';
+  grid-template-rows: auto 1fr;
+  column-gap: clamp(40px, 6vw, 112px);
+  row-gap: clamp(24px, 4vh, 48px);
+  align-items: start;
+}
+
+.ct2__intro {
+  grid-area: intro;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ct2__label {
+  --badge-color: var(--ct2-terracotta);
+  --badge-ink: var(--ct2-blush);
+}
+
+.ct2__heading {
+  font-family: var(--font-ct2-headline);
+  font-weight: 600;
+  font-size: var(--text-h2);
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  color: var(--ct2-terracotta);
+}
+
+.ct2__tagline {
+  font-family: var(--font-ct2-accent);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 2.2vw, 2.25rem);
+  line-height: 1.2;
+}
+
+.ct2__details {
+  grid-area: details;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 4vh, 40px);
+}
+
+.ct2__details .swatches {
+  grid-template-columns: repeat(2, minmax(0, 220px));
+}
+
+.ct2__details .specimen__sample {
+  font-size: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+/* ── Phone ─────────────────────────────────────────────────── */
+.ct2__phone-col {
+  grid-area: phone;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform 900ms var(--ease-out), opacity 600ms ease;
+}
+
+.ct2__layout[data-inview='true'] .ct2__phone-col {
+  transform: none;
+  opacity: 1;
+}
+
+.ct2__hint {
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+
+.phone {
+  /* sized from the screen height so the whole post fits on one screen */
+  --phone-w: clamp(290px, 38vh, 420px);
+  width: var(--phone-w);
+  padding: 11px;
+  border-radius: 54px;
+  background: #1a1210;
+  box-shadow:
+    inset 0 0 0 1.5px #3a2a24,
+    0 2px 0 1px rgba(255, 255, 255, 0.15) inset,
+    0 40px 80px -24px rgba(90, 30, 12, 0.45),
+    0 18px 30px -18px rgba(60, 20, 8, 0.4);
+}
+
+.phone__screen {
+  overflow: hidden;
+  border-radius: 44px;
+  background: #fff;
+  color: #000;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.phone__status {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 46px;
+  padding: 6px 26px 0 30px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.phone__island {
+  position: absolute;
+  left: 50%;
+  top: 11px;
+  width: 96px;
+  height: 28px;
+  border-radius: 999px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.phone__icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.phone__icons svg {
+  fill: currentColor;
+}
+
+/* ── Post ──────────────────────────────────────────────────── */
+.post {
+  padding-bottom: 18px;
+}
+
+.post__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+
+.post__avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #050404;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.post__avatar img {
+  height: 24px;
+  width: auto;
+}
+
+.post__account {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.post__more {
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  fill: #000;
+}
+
+.post__photo {
+  position: relative;
+  aspect-ratio: 1;
+  background: #e4c7b9;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.post__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* double-tap target: no long-press "save image" pop-up */
+  -webkit-touch-callout: none;
+}
+
+.post__burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  height: 34%;
+  margin: -17% 0 0 -17%;
+  fill: #fff;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+
+.post__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 4px;
+}
+
+.post__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #000;
+}
+
+.post__icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.post__like {
+  cursor: pointer;
+}
+
+.post__like[aria-pressed='true'] {
+  color: #ed4956;
+}
+
+.post__like[aria-pressed='true'] svg {
+  fill: currentColor;
+}
+
+.post__save {
+  margin-left: auto;
+}
+
+.post__likes {
+  padding: 4px 14px 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.count {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.count__digit {
+  display: inline-block;
+}
+
+.post__caption {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  line-height: 1.42;
+}
+
+.post__caption-line {
+  will-change: opacity, transform;
+}
+
+.post__caption-account {
+  font-weight: 600;
+}
+
+.post__tag {
+  color: #00376b;
+}
+
+/* ── Phone and tablet ──────────────────────────────────────── */
+/* ── Laptop and TV: two stops on one pinned frame ──────────────
+   Stop 1: the post with its palette and type. Stop 2: the phone zooms in
+   so the exact caption fills the middle of the screen. */
+.ct2-scroll {
+  position: relative;
+}
+
+.ct2-scroll__marker {
+  position: absolute;
+  left: 0;
+  top: calc((100% - 100vh) * var(--at));
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+@media (min-width: 901px) {
+  .section.ct2 {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .ct2-scroll {
+    height: calc(100vh + 70vh);
+  }
+
+  .ct2-scroll__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    padding-top: calc(var(--nav-height) + 20px);
+    padding-bottom: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* the zoomed phone may run off the top and bottom of the screen */
+    overflow: visible clip;
+  }
+
+  .ct2-scroll__sticky > .section__inner {
+    width: 100%;
+  }
+
+  /* The words arrive with the phone, once the page has turned blush */
+  .ct2__intro,
+  .ct2__details {
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+
+  .ct2__layout[data-inview='true'] .ct2__intro,
+  .ct2__layout[data-inview='true'] .ct2__details {
+    opacity: 1;
+  }
+
+  .ct2__zoom {
+    position: relative;
+    z-index: 2;
+    transform-origin: 0 0;
+    transition: transform 800ms var(--ease-in-out);
+  }
+
+  .ct2__layout[data-zoom='true'] .ct2__zoom {
+    transform: translate(var(--zx, 0px), var(--zy, 0px)) scale(var(--zs, 1));
+  }
+
+  /* While the caption is up close, everything else steps back */
+  .ct2__hint {
+    transition: opacity 300ms ease;
+  }
+
+  .ct2__layout[data-zoom='true'] .ct2__intro,
+  .ct2__layout[data-zoom='true'] .ct2__details,
+  .ct2__layout[data-zoom='true'] .ct2__hint {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .ct2__zoom {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .ct2__layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'intro' 'phone' 'details';
+    grid-template-rows: auto;
+  }
+
+  .phone {
+    --phone-w: min(100%, 360px);
+  }
+
+  .ct2__details .swatches {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct2__phone-col {
+    transform: none;
+    transition: opacity 300ms ease;
+  }
+}
+
+/* TV tier: post text readable from across the room */
+@media (min-width: 1600px) {
+  .post__account,
+  .post__likes {
+    font-size: 16px;
+  }
+
+  .post__caption {
+    font-size: 15.5px;
+  }
+}
