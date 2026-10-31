@@ -6,10 +6,9 @@ screenshots
 *.log
 .DS_Store
 
-# Local tool settings
+# Local tool settings and design notes
 .claude
-.impeccable/hook.cache.json
-.impeccable/live
+.impeccable
 
 # Planning notes (kept on this computer only)
 PLAN.md
