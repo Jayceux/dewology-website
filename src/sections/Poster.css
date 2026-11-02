@@ -132,9 +132,10 @@
   }
 }
 
-/* Shorter laptop screens: the poster's corner clears the stop counter */
-@media (min-width: 901px) and (max-height: 820px) {
+/* Laptop and TV: the poster is never taller than the space between the
+   menu and the stop counter's strip */
+@media (min-width: 901px) {
   .ct3__poster {
-    height: min(70vh, 840px);
+    height: min(78vh, 840px, calc(100svh - var(--nav-height) - var(--counter-band) - 32px));
   }
 }

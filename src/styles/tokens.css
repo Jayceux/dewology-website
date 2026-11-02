@@ -55,6 +55,9 @@
   --gutter-r: max(var(--gutter), env(safe-area-inset-right, 0px));
   --section-pad: clamp(96px, 16vh, 200px);
   --nav-height: 88px;
+  /* the strip along the bottom kept clear for the stop counter (shown from
+     1024px wide): frames never lay content out under it */
+  --counter-band: 56px;
   --content-max: 1280px;
   /* Left/right inset that lines fixed elements (menu) up with the content column */
   --page-inset: max(var(--gutter), calc((100vw - var(--content-max)) / 2));
@@ -78,8 +81,15 @@
    labels 20px, body text 24px, lead text 28px. */
 @media (min-width: 1600px) {
   :root {
+    --counter-band: 96px;
     --text-small: 1.25rem;
     --text-body: 1.5rem;
     --text-lead: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1599px) {
+  :root {
+    --counter-band: 84px;
   }
 }

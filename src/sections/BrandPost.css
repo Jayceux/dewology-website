@@ -315,7 +315,7 @@
     top: 0;
     height: 100vh;
     padding-top: calc(var(--nav-height) + 20px);
-    padding-bottom: 56px;
+    padding-bottom: var(--counter-band); /* clear of the stop counter */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -405,10 +405,15 @@
   }
 }
 
-/* Shorter laptop screens: the phone (with its full caption) is taller than
-   the screen, so it steps down in size as a whole */
-@media (min-width: 901px) and (max-height: 820px) {
+/* Laptop and TV: the phone (with its full caption) and the palette and type
+   column each step down as a whole when the screen is not tall enough for
+   them above the stop counter (the factors are measured in BrandPost.jsx) */
+@media (min-width: 901px) {
   .ct2__phone-col {
-    zoom: 0.8;
+    zoom: var(--phone-fit, 1);
+  }
+
+  .ct2__details {
+    zoom: var(--details-fit, 1);
   }
 }

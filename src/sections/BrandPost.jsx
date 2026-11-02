@@ -42,6 +42,23 @@ export default function BrandPost() {
       const zoom = zoomRef.current;
       const caption = captionRef.current;
       if (!stage || !zoom || !caption) return;
+      // The room between the menu and the stop counter's strip: the phone
+      // and the palette-and-type column each scale down to fit inside it
+      const cs = getComputedStyle(stage);
+      const room = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const phoneCol = stage.querySelector('.ct2__phone-col');
+      const intro = stage.querySelector('.ct2__intro');
+      const details = stage.querySelector('.ct2__details');
+      if (phoneCol) {
+        phoneCol.style.setProperty('--phone-fit', '1');
+        phoneCol.style.setProperty('--phone-fit', Math.min(1, room / phoneCol.offsetHeight).toFixed(3));
+      }
+      if (intro && details) {
+        details.style.setProperty('--details-fit', '1');
+        const gap = parseFloat(getComputedStyle(details.parentElement).rowGap) || 0;
+        const left = room - intro.offsetHeight - gap;
+        details.style.setProperty('--details-fit', Math.max(0.6, Math.min(1, left / details.offsetHeight)).toFixed(3));
+      }
       // positions from layout offsets, so the current zoom does not skew them
       const within = (el) => {
         let x = 0;
@@ -56,10 +73,13 @@ export default function BrandPost() {
       const c = within(caption);
       const cw = caption.offsetWidth;
       const ch = caption.offsetHeight;
-      const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 88;
-      const s = Math.min(2.4, (stage.clientWidth * 0.72) / cw, (stage.clientHeight - nav - 96) / ch);
+      const root = getComputedStyle(document.documentElement);
+      const nav = parseFloat(root.getPropertyValue('--nav-height')) || 88;
+      const band = parseFloat(root.getPropertyValue('--counter-band')) || 56;
+      // the zoomed caption fits between the menu and the counter's strip
+      const s = Math.min(2.4, (stage.clientWidth * 0.72) / cw, (stage.clientHeight - nav - band - 24) / ch);
       const gx = stage.clientWidth / 2;
-      const gy = (stage.clientHeight + nav) / 2;
+      const gy = (stage.clientHeight + nav - band) / 2;
       const cx = c.x + cw / 2;
       const cy = c.y + ch / 2;
       zoom.style.setProperty('--zs', s.toFixed(3));

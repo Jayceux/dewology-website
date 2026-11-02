@@ -30,7 +30,7 @@
   top: 0;
   height: 100vh;
   padding-top: calc(var(--nav-height) + 16px);
-  padding-bottom: 32px;
+  padding-bottom: var(--counter-band); /* the rail stays clear of the stop counter */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -45,7 +45,9 @@
 }
 
 .process__track {
-  --visual-h: min(44vh, 420px);
+  /* as tall as the screen allows once the menu, the stage's words, the rail
+     and the counter's strip are placed (420px on the TV) */
+  --visual-h: clamp(200px, calc(100svh - 470px), 420px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -121,7 +123,7 @@
 }
 
 .stage[data-kind='sheet'] .stage__visual {
-  height: calc(var(--visual-h) * 1.2);
+  height: min(calc(var(--visual-h) * 1.2), calc(100svh - 420px));
 }
 
 /* a whole sketch sheet, matted in mist like the crops taken from it */
@@ -719,11 +721,30 @@
   }
 }
 
-/* Shorter laptop screens: the marks give a little height back so their
-   captions clear the stop counter in the corner */
-@media (min-width: 901px) and (max-height: 820px) {
+/* Laptop and TV: "The final marks" is exactly one screen. The two logos
+   take whatever height is left once the heading, the captions and the
+   counter's strip are placed, so the captions never meet the counter */
+@media (min-width: 901px) {
+  .marks {
+    height: 100svh;
+    padding-bottom: var(--counter-band);
+  }
+
+  .marks__grid {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .marks__card {
+    min-height: 0;
+  }
+
   .marks__art {
-    height: min(42vh, 560px);
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: 560px;
   }
 }
 
