@@ -2,31 +2,22 @@
 .routine__head {
   display: grid;
   grid-template-columns: 1fr minmax(0, 36ch);
-  grid-template-areas:
-    'label label'
-    'heading intro';
+  grid-template-areas: 'heading intro';
   align-items: end;
   column-gap: 48px;
   row-gap: 16px;
   padding-top: calc(var(--nav-height) + 24px);
 }
 
-.routine__label {
-  grid-area: label;
-  --badge-color: var(--gold);
-  --badge-ink: var(--night);
-  margin-bottom: clamp(8px, 2vh, 24px);
-}
-
 .routine__heading {
   grid-area: heading;
   font-size: var(--text-h2);
-  color: var(--cream);
+  color: var(--rose);
 }
 
 .routine__intro {
   grid-area: intro;
-  color: var(--muted-on-dark);
+  color: var(--berry);
 }
 
 /* The lineup: each render is cropped to a 560 × 1040 window around its
@@ -38,7 +29,6 @@
 @media (min-width: 901px) {
   .routine__head {
     grid-template-areas:
-      'label label'
       'heading intro'
       'lineup lineup';
   }
@@ -124,17 +114,6 @@
   max-height: 760px;
 }
 
-.steps__glow {
-  position: absolute;
-  left: 50%;
-  bottom: 6%;
-  width: 90%;
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(232, 199, 135, 0.22) 0%, rgba(232, 199, 135, 0.07) 40%, rgba(232, 199, 135, 0) 68%);
-  pointer-events: none;
-}
 
 .steps__bignum {
   position: absolute;
@@ -145,8 +124,9 @@
   font-weight: 600;
   font-size: min(48vh, 26vw);
   line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(232, 199, 135, 0.4);
+  /* outlined by the shared filter, as one clean shape (see DropClip.jsx) */
+  color: var(--rose);
+  filter: url(#numeral-outline);
   pointer-events: none;
 }
 
@@ -163,6 +143,10 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  /* anchored at a fixed height, not centred: a step whose name or text
+     wraps would otherwise nudge the whole list as the presenter steps on */
+  align-self: start;
+  margin-top: 22vh;
 }
 
 .step {
@@ -173,11 +157,10 @@
   width: 100%;
   padding: 18px 0;
   border: 0;
-  border-top: 1px solid rgba(232, 199, 135, 0.2);
+  border-top: 1px solid rgba(122, 36, 54, 0.18);
   background: none;
-  color: var(--cream);
+  color: var(--muted); /* resting steps: quiet rose, still 5.9:1 */
   text-align: left;
-  opacity: 0.55; /* still 4.5:1 for the step descriptions */
   transition: opacity 200ms ease;
 }
 
@@ -190,7 +173,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50% 0 50% 50%;
-  background: var(--gold);
+  background: var(--rose);
   transform: translateY(-50%) rotate(-45deg) scale(0.4);
   opacity: 0;
   transition: opacity 200ms ease, transform 300ms var(--ease-out);
@@ -202,11 +185,15 @@
 }
 
 .steps__list li:last-child .step {
-  border-bottom: 1px solid rgba(232, 199, 135, 0.2);
+  border-bottom: 1px solid rgba(122, 36, 54, 0.18);
 }
 
 .step[aria-current='step'] {
-  opacity: 1;
+  color: var(--rose);
+}
+
+.step[aria-current='step'] .step__text {
+  color: inherit;
 }
 
 .step:active {
@@ -215,7 +202,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .step:hover {
-    opacity: 0.8;
+    color: var(--rose);
   }
 }
 
@@ -226,7 +213,7 @@
   font-weight: 600;
   font-size: 1.75rem;
   line-height: 1;
-  color: var(--gold);
+  color: var(--rose);
 }
 
 .step__body {
@@ -243,8 +230,48 @@
 }
 
 .step__text {
-  color: var(--muted-on-dark);
+  color: var(--berry);
   font-size: var(--text-body);
+}
+
+/* Each step frame is about one product: the five names stay (the order of
+   the routine), but only the current step opens its description and
+   steps up in size; the others rest small and quiet. Exactly one row is
+   open on every frame, so the list keeps its height as it changes. */
+.step__name {
+  transition: font-size 320ms var(--ease-out);
+}
+
+.step[aria-current='step'] .step__name {
+  font-size: clamp(1.75rem, 2.4vw, 2.75rem);
+  font-weight: 600;
+}
+
+.step__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 360ms var(--ease-out),
+    opacity 300ms var(--ease-out);
+}
+
+.step[aria-current='step'] .step__more {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.steps__list .step__text {
+  min-height: 0;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step__name,
+  .step__more {
+    transition: none;
+  }
 }
 
 /* ── Phone: stacked list ───────────────────────────────────── */
@@ -301,34 +328,19 @@
 .kit__name {
   font-size: var(--text-h3);
   font-weight: 600;
-  color: var(--cream);
+  color: var(--rose);
 }
 
 .kit__text {
-  color: var(--muted-on-dark);
+  color: var(--berry);
   max-width: 30ch;
 }
 
 .kit__toggle {
+  /* the site's primary button (.button, as on the opening's "See the
+     routine"); only its place in the kit's column is set here */
+  align-self: flex-start;
   margin-top: 8px;
-  padding: 12px 22px;
-  min-height: 44px;
-  border: 1px solid var(--gold);
-  border-radius: 999px;
-  background: none;
-  color: var(--gold);
-  font-weight: 500;
-  transition: transform 160ms var(--ease-out), background-color 200ms ease;
-}
-
-.kit__toggle:active {
-  transform: scale(0.97);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .kit__toggle:hover {
-    background: rgba(232, 199, 135, 0.1);
-  }
 }
 
 .kit__stage {
@@ -336,17 +348,6 @@
   aspect-ratio: 1600 / 1100;
 }
 
-.kit__glow {
-  position: absolute;
-  left: 50%;
-  top: 58%;
-  width: 80%;
-  aspect-ratio: 1.6;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(232, 199, 135, 0.2), rgba(232, 199, 135, 0));
-  pointer-events: none;
-}
 
 .kit__layer {
   position: absolute;

@@ -18,7 +18,7 @@ function shouldSmoothScroll(reduceMotion) {
 export function SiteProvider({ children }) {
   const reduceMotion = useReducedMotion();
   const lenisRef = useRef(null);
-  const [active, setActive] = useState({ id: 'home', theme: 'dark' });
+  const [active, setActive] = useState({ id: 'home' });
 
   // Lenis smooth scrolling
   useEffect(() => {
@@ -38,7 +38,9 @@ export function SiteProvider({ children }) {
       if (!el) return;
       // Absolute page position from the real scroll offset, so it stays
       // correct even after scrollbar drags or other native scrolling.
-      const top = Math.round(el.getBoundingClientRect().top + window.scrollY);
+      // on phones, stop below the fixed menu (scroll-margin-top in global.css)
+      const margin = window.matchMedia('(max-width: 900px)').matches ? parseFloat(getComputedStyle(el).scrollMarginTop) || 0 : 0;
+      const top = Math.round(el.getBoundingClientRect().top + window.scrollY - margin);
       if (lenisRef.current) {
         // Short and strong ease-out: keyboard-driven, so it must feel immediate,
         // but the audience still sees where the page went.
@@ -58,7 +60,7 @@ export function SiteProvider({ children }) {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const el = entry.target;
-            setActive({ id: el.dataset.nav || el.id, theme: el.dataset.theme || 'dark', bg: el.dataset.bg });
+            setActive({ id: el.dataset.nav || el.id });
           }
         });
       },
@@ -68,13 +70,8 @@ export function SiteProvider({ children }) {
     return () => observer.disconnect();
   }, []);
 
-  // The page scrollbar takes the current section's colour (thin, bronze
-  // thumb), so a plain grey bar never shows at the edge of the TV
-  useEffect(() => {
-    if (active.bg) document.documentElement.style.setProperty('--page-bg', active.bg);
-  }, [active.bg]);
-
   usePresentationKeys(scrollTo);
+  useWheelSettle(scrollTo);
 
   return (
     <SiteContext.Provider value={{ scrollTo, active, reduceMotion }}>{children}</SiteContext.Provider>
@@ -86,7 +83,7 @@ function easeOutStrong(t) {
   return 1 - Math.pow(1 - t, 5);
 }
 
-// Presentation keys: → / Page Down = next stop, ← / Page Up = previous stop.
+// Presentation keys: → / ↓ / Page Down = next stop, ← / ↑ / Page Up = previous stop.
 // "Stops" are any element with a data-stop attribute, in page order.
 function usePresentationKeys(scrollTo) {
   const last = useRef(null); // the stop we last sent the page to, and when
@@ -96,9 +93,15 @@ function usePresentationKeys(scrollTo) {
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
 
-      const forward = e.key === 'ArrowRight' || e.key === 'PageDown';
-      const back = e.key === 'ArrowLeft' || e.key === 'PageUp';
+      const forward = e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown';
+      const back = e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp';
       if (!forward && !back) return;
+
+      // The page moves on, so a link or button clicked earlier lets go of
+      // focus: otherwise the browser's focus box stays drawn around it
+      // (e.g. on "Concept" in the menu) after the presenter has moved on
+      const held = document.activeElement;
+      if (held && held !== document.body && held.matches('a, button')) held.blur();
 
       const stops = [...document.querySelectorAll('[data-stop]')];
       let index;
@@ -126,5 +129,55 @@ function usePresentationKeys(scrollTo) {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+  }, [scrollTo]);
+}
+
+// The presenter also scrolls with the mouse. When a wheel or touchpad scroll
+// comes to rest between two stops (most often inside the pinned sections:
+// the steps, the logo process, Gestalt), the page eases on to the nearest
+// stop, so a frame is never left half-slid. Keys and scrollbar drags are left
+// alone, and phones scroll freely.
+function useWheelSettle(scrollTo) {
+  useEffect(() => {
+    const wide = window.matchMedia('(min-width: 901px)');
+    let wheeled = false;
+    let idle = 0;
+    const settle = () => {
+      if (!wheeled || !wide.matches) return;
+      wheeled = false;
+      let best = null;
+      document.querySelectorAll('[data-stop]').forEach((el) => {
+        const d = Math.abs(el.getBoundingClientRect().top);
+        if (!best || d < best.d) best = { el, d };
+      });
+      // already resting on a stop: nothing to do
+      if (best && best.d > 3) scrollTo(best.el);
+    };
+    const onWheel = () => {
+      wheeled = true;
+      clearTimeout(idle);
+      idle = setTimeout(settle, 200);
+    };
+    // smooth scrolling keeps the page moving after the last wheel tick:
+    // wait until it has come to rest
+    const onScroll = () => {
+      if (!wheeled) return;
+      clearTimeout(idle);
+      idle = setTimeout(settle, 200);
+    };
+    // a key press takes over (the presentation keys move the page themselves)
+    const onKey = () => {
+      wheeled = false;
+      clearTimeout(idle);
+    };
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(idle);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('keydown', onKey);
+    };
   }, [scrollTo]);
 }

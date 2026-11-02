@@ -1,10 +1,12 @@
 import { useId } from 'react';
-import { MARK_PARTS, MARK_GRADIENTS, MARK_VIEWBOX, GOLD_STOPS } from '../lib/logoPaths';
+import { MARK_PARTS, MARK_GRADIENTS, MARK_VIEWBOX, GOLD_STOPS, FOIL_STOPS } from '../lib/logoPaths';
 
 // The gold Dewology mark as live SVG. Each shape is a <g data-part="...">
 // so it can be animated or highlighted. Extra layers (masks, shine) can be
 // passed in through `renderDefs` and `renderOverlay`.
+//   tone = 'foil' (default, reads on paper) or 'gold' (exact, CT#1 exhibit)
 export default function LogoMark({
+  tone = 'foil',
   className,
   label = 'Dewology logo',
   viewBox = MARK_VIEWBOX,
@@ -23,8 +25,8 @@ export default function LogoMark({
       <defs>
         {Object.entries(MARK_GRADIENTS).map(([part, g]) => (
           <linearGradient key={part} id={gid(part)} gradientUnits="userSpaceOnUse" {...g}>
-            {GOLD_STOPS.map((s) => (
-              <stop key={s.offset} offset={s.offset} stopColor={s.color} stopOpacity={0.9} />
+            {(tone === 'gold' ? GOLD_STOPS : FOIL_STOPS).map((s) => (
+              <stop key={s.offset} offset={s.offset} stopColor={s.color} stopOpacity={tone === 'gold' ? 0.9 : 1} />
             ))}
           </linearGradient>
         ))}

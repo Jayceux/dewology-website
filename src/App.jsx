@@ -1,6 +1,6 @@
 import { SiteProvider } from './lib/site';
-import BackgroundGlow from './components/BackgroundGlow';
-import ProgressDrop from './components/ProgressDrop';
+import Stage from './stage/Stage';
+import StopCounter from './components/StopCounter';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
 import Hero from './sections/Hero';
@@ -15,8 +15,8 @@ export default function App() {
   return (
     <SiteProvider>
       <DropClip />
-      <BackgroundGlow />
-      <ProgressDrop />
+      <Stage />
+      <StopCounter />
       <Nav />
       <main>
         <Hero />

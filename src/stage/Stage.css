@@ -1,0 +1,66 @@
+/* The paper and paint sit behind every section (sections paint nothing) */
+.paint-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.paint-stage__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* With the live 3D products on, the product photos they replace step aside
+   (!important: the step photos' own fade sets their opacity inline) */
+html[data-stage3d='on'] .hero-product__photo,
+html[data-stage3d='on'] .steps__product {
+  opacity: 0 !important;
+}
+
+/* A chapter headline waits for the dewdrop, then settles in as it lands
+   (set by Stage.jsx; without the stage nothing is ever hidden) */
+[data-reveal] {
+  transition: opacity 520ms var(--ease-out), filter 520ms var(--ease-out), transform 620ms var(--ease-out);
+}
+
+[data-reveal='wait'] {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    transition: none;
+  }
+}
+
+/* Where a photo stands in the water instead of a live 3D model (the kit
+   always; the hero and steps on phones and with reduced motion), it gets a
+   mirrored reflection: flipped about the line the product stands on (the
+   box at 77.6% of the kit picture, the bottles at 86.2% of theirs) and
+   fading with depth. */
+html[data-stage='on'] .kit__stage {
+  -webkit-box-reflect: below -44.8% linear-gradient(to bottom, transparent 62%, rgba(0, 0, 0, 0.3) 77.6%);
+}
+
+html[data-stage='on']:not([data-stage3d='on']) .hero-product__photo,
+html[data-stage='on']:not([data-stage3d='on']) .steps__product {
+  -webkit-box-reflect: below -27.6% linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.3) 86.2%);
+}
+
+/* The other things that stand in the water are mirrored in it too: the
+   product lineup (photos, standing at 86.2% of each picture) and the
+   poster (standing on its own bottom edge). The phone mockup stands in
+   the water without one: its screen full of text mirrors as clutter. */
+html[data-stage='on'] .routine__lineup img {
+  -webkit-box-reflect: below -27.6% linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.28) 86.2%);
+}
+
+html[data-stage='on'] .ct3__poster {
+  /* a short reflection, faded out before it reaches the corner counter */
+  -webkit-box-reflect: below 0 linear-gradient(to bottom, transparent 89%, rgba(0, 0, 0, 0.22));
+}
+

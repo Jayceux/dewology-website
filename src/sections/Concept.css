@@ -14,12 +14,6 @@
   padding-top: calc(var(--nav-height) + 24px);
 }
 
-.story__label {
-  --badge-color: var(--night);
-  --badge-ink: var(--blush);
-  margin-bottom: clamp(24px, 4vh, 40px);
-}
-
 .story__list {
   list-style: none;
   margin: 0;
@@ -30,7 +24,7 @@
   font-family: var(--font-display);
   font-size: clamp(2rem, 4.2vw, 4rem);
   line-height: 1.2;
-  color: rgba(5, 4, 4, 0.5);
+  color: rgba(122, 36, 54, 0.68); /* muted, struck out, and still 3:1 */
 }
 
 /* The strike line draws across, one item after another */
@@ -47,7 +41,7 @@
   top: 52%;
   height: 0.06em;
   min-height: 2px;
-  background: var(--night);
+  background: var(--rose);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 440ms var(--ease-in-out);
@@ -73,7 +67,7 @@
 }
 
 .story__body {
-  color: var(--ink);
+  color: var(--berry);
   line-height: 1.7;
 }
 
@@ -102,14 +96,14 @@
   font-family: var(--font-body);
   font-size: var(--text-small);
   font-weight: 600;
-  color: #5a3a18;
+  color: var(--rose);
   margin-bottom: 16px;
 }
 
 .mv__drop {
   width: 10px;
   height: 15px;
-  color: var(--bronze);
+  color: var(--rose);
 }
 
 .mv__text {
@@ -117,7 +111,7 @@
   font-weight: 500;
   font-size: 1em;
   line-height: 1.18;
-  color: var(--night);
+  color: var(--rose);
   text-wrap: balance;
 }
 
@@ -143,7 +137,7 @@
 
 .founders__intro {
   max-width: 34ch;
-  color: var(--ink);
+  color: var(--berry);
 }
 
 .founders__list {
@@ -173,7 +167,7 @@
   height: 100%;
   display: grid;
   place-items: center;
-  background: radial-gradient(120% 90% at 50% 70%, #b8894a 0%, #5a3a24 55%, #2a1810 100%);
+  background: radial-gradient(120% 90% at 50% 70%, #f8dde1 0%, #eba2ac 60%, #d98a98 100%);
   transform: translateY(14%) scale(1.08);
   opacity: 0;
   transition: transform 900ms var(--ease-out), opacity 500ms ease;
@@ -190,10 +184,7 @@
   font-weight: 600;
   font-size: clamp(2rem, 4vw, 3.5rem);
   letter-spacing: 0.04em;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--rose);
   padding-top: 18%;
 }
 

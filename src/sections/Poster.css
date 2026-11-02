@@ -66,21 +66,17 @@
   gap: clamp(28px, 4vh, 44px);
 }
 
-.ct3__label {
-  --badge-color: var(--ct3-ink);
-  --badge-ink: #ffffff;
-}
-
 .ct3__details .swatches {
   grid-template-columns: repeat(3, minmax(0, 200px));
 }
 
-/* The sample keeps the poster's deep pink, shown on white so it reads */
+/* The sample keeps the poster's deep pink, on a mist chip so it reads
+   (3.3:1 at this large size) */
 .ct3__details .specimen__sample {
   font-size: clamp(1.75rem, 2.6vw, 2.75rem);
   color: var(--ct3-deep);
-  background: #ffffff;
-  padding: 10px 18px;
+  background: var(--mist);
+  padding: 14px 20px; /* room to breathe around the 44px sample */
   border-radius: 10px;
   width: fit-content;
   max-width: 100%;
@@ -117,10 +113,6 @@
     display: contents;
   }
 
-  .ct3__label {
-    order: -1;
-  }
-
   .ct3__poster {
     height: auto;
     width: min(100%, 420px);
@@ -137,5 +129,12 @@
     -webkit-mask-image: none;
     mask-image: none;
     transition: none;
+  }
+}
+
+/* Shorter laptop screens: the poster's corner clears the stop counter */
+@media (min-width: 901px) and (max-height: 820px) {
+  .ct3__poster {
+    height: min(70vh, 840px);
   }
 }

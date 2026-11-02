@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAnimate } from 'motion/react';
 import { brand, hero } from '../content';
 import { useSite } from '../lib/site';
@@ -6,8 +6,6 @@ import { markIntroSeen } from '../lib/intro';
 import Section from '../components/Section';
 import Wordmark from '../components/Wordmark';
 import { buildLayers, buildSteps } from '../components/WordmarkBuild';
-import HeroProduct from '../components/HeroProduct';
-import GoldGlow from '../components/GoldGlow';
 import './Hero.css';
 
 // Strong ease-out for things arriving (Emil Kowalski)
@@ -23,17 +21,15 @@ const LOGO = buildLayers('hero');
 // 1.85  intro text, button, menu and glow settle in
 // 1.95  the plain word "Dewology" settles in under the logo, so the
 //       name reads even from the back of the room
-// Then the 3D Glow Serum spins up into place (see HeroProduct).
+// Then the watercolour stage drops the first dew: a wash blooms on the
+// right and the live 3D Glow Serum rises in it (see src/stage).
 function introSequence(q, nav, progress) {
   return [
     ...buildSteps(q, 0),
-    [q('.gold-glow'), { opacity: [0, 1] }, { duration: 0.9, ease: 'easeOut', at: 1.1 }],
     [q('.hero__line:nth-child(2) .hero__line-inner'), { transform: ['translateY(108%)', 'translateY(0%)'] }, { duration: 0.75, ease: EASE_OUT, at: 1.45 }],
     [q('.hero__line:nth-child(3) .hero__line-inner'), { transform: ['translateY(108%)', 'translateY(0%)'] }, { duration: 0.75, ease: EASE_OUT, at: 1.53 }],
     [q('.hero__intro'), { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'], filter: ['blur(4px)', 'blur(0px)'] }, { duration: 0.5, ease: EASE_OUT, at: 1.85 }],
     [q('.hero__cta'), { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'], filter: ['blur(4px)', 'blur(0px)'] }, { duration: 0.5, ease: EASE_OUT, at: 1.93 }],
-    // the letters draw together as they settle
-    [q('.hero__name'), { opacity: [0, 1], letterSpacing: ['0.7em', '0.42em'], filter: ['blur(4px)', 'blur(0px)'] }, { duration: 0.9, ease: EASE_OUT, at: 1.95 }],
     [nav, { opacity: [0, 1] }, { duration: 0.5, ease: 'easeOut', at: 2.0 }],
     [progress, { opacity: [0, 1] }, { duration: 0.5, ease: 'easeOut', at: 2.1 }],
     [q('.hero__skip'), { opacity: [1, 0] }, { duration: 0.2, at: 2.3 }],
@@ -42,7 +38,6 @@ function introSequence(q, nav, progress) {
 
 export default function Hero() {
   const { scrollTo } = useSite();
-  const productRef = useRef(null);
   const [scope, animate] = useAnimate();
   const [playing, setPlaying] = useState(() => document.documentElement.dataset.intro === 'play');
   const lines = brand.tagline.split(/(?<=\.)\s+/);
@@ -57,7 +52,7 @@ export default function Hero() {
     }
 
     const q = (sel) => scope.current?.querySelector(sel);
-    const controls = animate(introSequence(q, document.querySelector('.nav'), document.querySelector('.progress-drop')));
+    const controls = animate(introSequence(q, document.querySelector('.nav'), document.querySelector('.stop-counter')));
     let finished = false;
 
     const finish = () => {
@@ -104,10 +99,8 @@ export default function Hero() {
   }, [animate, scope]);
 
   return (
-    <Section id="home" bg="#050404" theme="dark" className="hero" label={brand.name}>
+    <Section id="home" className="hero" label={brand.name}>
       <div ref={scope} className="hero__stage">
-        <GoldGlow anchorRef={productRef} follow={false} />
-
         <div className="hero__inner">
           <div className="hero__copy">
             <h1 className="hero__brand">
@@ -116,7 +109,8 @@ export default function Hero() {
                 label={null}
                 {...LOGO}
               />
-              <span className="hero__name">{brand.name}</span>
+              {/* the logo already reads "Dewology"; the name is kept for screen readers only */}
+              <span className="visually-hidden">{brand.name}</span>
             </h1>
             <p className="hero__tagline">
               <span className="visually-hidden">{brand.tagline}</span>
@@ -139,8 +133,10 @@ export default function Hero() {
             </a>
           </div>
 
-          <div className="hero__product" ref={productRef}>
-            <HeroProduct start={!playing} />
+          {/* The live 3D serum stands here (drawn by the stage); the photo is
+              the fallback without WebGL or with reduced motion */}
+          <div className="hero__product hero-product">
+            <img className="hero-product__photo" src="/assets/products/serum.webp" alt={hero.productAlt} width="1000" height="1250" />
           </div>
         </div>
 

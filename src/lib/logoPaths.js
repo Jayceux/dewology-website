@@ -28,6 +28,19 @@ export const GOLD_STOPS = [
   { offset: 1, color: '#9A6F45' },
 ];
 
+// The same gold, from its darker half, for the logo on paper: the light
+// gold would vanish on pink paper, so the highlight stops short of white.
+export const FOIL_STOPS = [
+  { offset: 0, color: '#7E5733' },
+  { offset: 0.2, color: '#A87A43' },
+  { offset: 0.45, color: '#D9B26A' },
+  { offset: 0.62, color: '#B88A4E' },
+  { offset: 1, color: '#7E5733' },
+];
+
+// Letters of the secondary logo: flat gold as designed, or foil on paper
+export const LETTERS_GOLD = '#E8C787';
+
 // The secondary logo (936 × 398): the mark becomes the "D" and is
 // followed by these letters. The mark sits at the primary mark × WORDMARK_MARK_SCALE.
 // Source: public/assets/logo/secondary-logo.svg

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { logoDesign } from '../content';
+import { logoDesign, chapters } from '../content';
 import { useSite } from '../lib/site';
 import useMediaQuery from '../lib/useMediaQuery';
 import { MARK_PARTS } from '../lib/logoPaths';
 import Section from '../components/Section';
-import CtBadge from '../components/CtBadge';
+import ChapterCard from '../components/ChapterCard';
 import LogoMark from '../components/LogoMark';
-import GoldGlow from '../components/GoldGlow';
+import Wordmark from '../components/Wordmark';
 import SketchCrop from '../components/SketchCrop';
 import Swatches from '../components/Swatches';
 import FontSpecimen from '../components/FontSpecimen';
@@ -16,13 +16,9 @@ import './LogoDesign.css';
 // CT#1 Logo design: its own black-and-gold palette, Cinzel (Trajan stand-in) + Montserrat.
 export default function LogoDesign() {
   return (
-    <Section id="logo" bg="#050404" theme="dark" stop={false} className="ct1" label="CT#1 Logo design">
+    <Section id="logo" stop={false} className="ct1" label={logoDesign.label}>
       <div className="section__inner">
-        <header className="ct1__intro frame" id="ct1-intro" data-stop="">
-          <CtBadge className="ct1__label" label={logoDesign.label} />
-          <h2 className="ct1__heading">{logoDesign.heading}</h2>
-          <p className="ct1__lede">{logoDesign.intro}</p>
-        </header>
+        <ChapterCard id="chapter-logo" chapter={chapters.logo} />
         <Process />
         <FinalMarks />
         <Gestalt />
@@ -37,23 +33,42 @@ export default function LogoDesign() {
 function OutlinedDrop() {
   return (
     <svg className="process__drop" viewBox="140 0 185 520" role="img" aria-label="A single outlined dewdrop">
-      <path d={MARK_PARTS.drop} fill="none" stroke="#E8C787" strokeWidth="2.5" strokeLinejoin="round" />
+      {/* drawn heavy enough to read from the back of the room, with a
+          faint wash of the logo's gold inside */}
+      <path d={MARK_PARTS.drop} fill="rgba(232, 199, 135, 0.28)" stroke="#9A6F45" strokeWidth="7" strokeLinejoin="round" />
     </svg>
   );
 }
 
 const STAGE_VISUALS = [
   { kind: 'drop' },
+  { kind: 'sheet', n: 1 },
   { kind: 'crops', ids: ['redBlackDrop', 'pinkDrop', 'goldDrop'], source: 'Draft sketch 1' },
   { kind: 'crops', ids: ['wordmarkThin', 'wordmarkBold', 'wordmarkSerif'], source: 'Draft sketch 1' },
+  { kind: 'sheet', n: 2 },
   { kind: 'crops', ids: ['facePurple', 'facePink', 'faceRed', 'faceGreen'], source: 'Draft sketch 2' },
-  { kind: 'final' },
 ];
+
+// A whole draft sketch sheet, as the group drew it, matted like the crops
+function SketchSheet({ n, alt }) {
+  const src = `/assets/sketches/draft-sketch-${n}`;
+  return (
+    <img
+      className="process__sheet"
+      src={`${src}.png`}
+      srcSet={`${src}.png 800w, ${src}@2x.png 1600w`}
+      sizes="(min-width: 901px) 46vw, 90vw"
+      width="800"
+      height="450"
+      alt={alt}
+    />
+  );
+}
 
 function StageVisual({ index }) {
   const v = STAGE_VISUALS[index];
   if (v.kind === 'drop') return <OutlinedDrop />;
-  if (v.kind === 'final') return <LogoMark className="process__final" label="Final Dewology mark" />;
+  if (v.kind === 'sheet') return <SketchSheet n={v.n} alt={logoDesign.stages[index].alt} />;
   return (
     <div className="process__crops" style={{ '--n': v.ids.length }}>
       {v.ids.map((id) => (
@@ -112,13 +127,9 @@ function ProcessTimeline() {
       const panels = [...track.children];
       // measure from the viewport box: the track itself is moved sideways
       const left = track.parentElement.getBoundingClientRect().left;
-      const vw = document.documentElement.clientWidth;
-      const maxShift = Math.max(0, track.scrollWidth - (vw - 2 * left));
-      offsets.current = panels.map((p) => Math.min(p.offsetLeft, maxShift));
-      // The final mark is the climax: it stops in the middle, on its own
-      const last = panels[panels.length - 1];
-      const contentW = vw - 2 * left;
-      offsets.current[panels.length - 1] = Math.max(0, last.offsetLeft - (contentW - last.offsetWidth) / 2);
+      // every stage stops at the same place, the left edge (only the
+      // current one is visible, so nothing waits beside it)
+      offsets.current = panels.map((p) => p.offsetLeft);
       version.set(version.get() + 1);
     };
     measure();
@@ -150,13 +161,20 @@ function ProcessTimeline() {
   return (
     <div className="process" ref={ref} style={{ '--count': N }}>
       {logoDesign.stages.map((s, i) => (
-        <span key={s.title} id={`ct1-stage-${i + 1}`} className="process__marker" data-stop="" style={{ '--at': i / (N - 1) }} />
+        <span
+          key={s.title}
+          id={`ct1-stage-${i + 1}`}
+          className="process__marker"
+          data-stop=""
+          data-label={`${logoDesign.stopLabels.process} · ${s.title}`}
+          style={{ '--at': i / (N - 1) }}
+        />
       ))}
       <div className="process__sticky">
         <div className="process__viewport">
           <motion.ol className="process__track" ref={trackRef} style={{ transform }}>
             {logoDesign.stages.map((s, i) => (
-              <li key={s.title} className="stage" data-active={i === active} data-past={i < active} data-final={i === N - 1}>
+              <li key={s.title} className="stage" data-active={i === active} data-kind={STAGE_VISUALS[i].kind}>
                 <StageCopy index={i} />
                 <div className="stage__visual">
                   <StageVisual index={i} />
@@ -195,7 +213,17 @@ function ProcessStack() {
   return (
     <ol className="process-stack">
       {logoDesign.stages.map((s, i) => (
-        <li key={s.title} className="stage stage--stacked" data-active="true" data-final={i === N - 1}>
+        // each stage is its own stop (the same ids as the timeline's markers),
+        // so with reduced motion the deck keeps all 30 stops
+        <li
+          key={s.title}
+          id={`ct1-stage-${i + 1}`}
+          className="stage stage--stacked frame"
+          data-stop=""
+          data-label={`${logoDesign.stopLabels.process} · ${s.title}`}
+          data-active="true"
+          data-kind={STAGE_VISUALS[i].kind}
+        >
           <StageCopy index={i} />
           <div className="stage__visual">
             <StageVisual index={i} />
@@ -211,12 +239,15 @@ function ProcessStack() {
 function FinalMarks() {
   const markRef = useRef(null);
   return (
-    <div className="marks" id="ct1-marks" data-stop="">
-      <h2 className="ct1__subheading">{logoDesign.marksHeading}</h2>
+    <div className="marks" id="ct1-marks" data-stop="" data-label={logoDesign.stopLabels.marks}>
+      {/* the process ends here: the final mark, as both logos */}
+      <div className="marks__head">
+        <h2 className="ct1__subheading">{logoDesign.marksHeading}</h2>
+        <p className="marks__text">{logoDesign.marksText}</p>
+      </div>
       <div className="marks__grid">
         <figure className="marks__card marks__card--primary">
           <div className="marks__art">
-            <GoldGlow anchorRef={markRef} />
             <div className="marks__primary" ref={markRef}>
               <LogoMark label="Dewology primary logo" />
             </div>
@@ -228,7 +259,7 @@ function FinalMarks() {
         </figure>
         <figure className="marks__card">
           <div className="marks__art marks__art--secondary">
-            <img src="/assets/logo/secondary-logo.svg" alt="Dewology secondary logo: the mark as the D, followed by EWOLOGY" width="936" height="398" />
+            <Wordmark label="Dewology secondary logo: the mark as the D, followed by EWOLOGY" />
           </div>
           <figcaption>
             <strong>{logoDesign.secondary.title}</strong>
@@ -251,7 +282,7 @@ function FinalMarks() {
 // The explainer's canvas: the mark plus room around it for labels.
 const VB = { x: -150, y: -30, w: 640, h: 790 };
 const VIEWBOX = `${VB.x} ${VB.y} ${VB.w} ${VB.h}`;
-const LABEL = { fill: '#F6E7DE', fontFamily: 'Montserrat', fontSize: 26, fontWeight: 600 };
+const LABEL = { fill: '#6D1D28', fontFamily: 'Montserrat', fontSize: 26, fontWeight: 600 };
 
 // The dark gaps between the shapes, built from the logo's own outlines
 // (face edge on one side, dewdrop or hair edge on the other) so they fit exactly.
@@ -281,7 +312,7 @@ function FigureGroundUnder({ uid }) {
 function Pill({ x, y, w, children }) {
   return (
     <>
-      <rect x={x} y={y} width={w} height="44" rx="22" fill="#050404" stroke="#E8C787" strokeOpacity="0.6" />
+      <rect x={x} y={y} width={w} height="44" rx="22" fill="#FAE5E8" stroke="#6D1D28" strokeOpacity="0.5" />
       <text x={x + w / 2} y={y + 29} textAnchor="middle" {...LABEL}>
         {children}
       </text>
@@ -297,9 +328,9 @@ function FigureGroundOver() {
       <path className="gfig__gap" d={GAP_FACE_HAIR} />
       <g className="gfig__labels">
         <Pill x={-128} y={70} w={130}>{logoDesign.diagram.ground}</Pill>
-        <line x1="300" y1="150" x2="372" y2="112" stroke="#F6E7DE" strokeWidth="2" />
+        <line x1="300" y1="150" x2="372" y2="112" stroke="#6D1D28" strokeWidth="2.5" />
         <Pill x={372} y={90} w={110}>{logoDesign.diagram.figure}</Pill>
-        <line x1="182" y1="326" x2="64" y2="306" stroke="#F6E7DE" strokeWidth="2" />
+        <line x1="182" y1="326" x2="64" y2="306" stroke="#6D1D28" strokeWidth="2.5" />
         {logoDesign.diagram.gaps.map((line, i) => (
           <text key={line} x="-140" y={282 + i * 32} {...LABEL}>
             {line}
@@ -315,13 +346,13 @@ function ClosureOver() {
     <g aria-hidden="true">
       <path className="gfig__whole" d={IMPLIED_WHOLE} />
       <g className="gfig__labels">
-        <line x1="290" y1="130" x2="356" y2="104" stroke="#E8C787" strokeOpacity="0.8" strokeWidth="1.5" />
+        <line x1="290" y1="130" x2="356" y2="104" stroke="#6D1D28" strokeOpacity="0.7" strokeWidth="2.5" />
         <text x="362" y="112" {...LABEL}>{logoDesign.diagram.dewdrop}</text>
-        <line x1="250" y1="590" x2="356" y2="604" stroke="#E8C787" strokeOpacity="0.8" strokeWidth="1.5" />
+        <line x1="250" y1="590" x2="356" y2="604" stroke="#6D1D28" strokeOpacity="0.7" strokeWidth="2.5" />
         <text x="362" y="612" {...LABEL}>{logoDesign.diagram.face}</text>
-        <line x1="22" y1="560" x2="-58" y2="600" stroke="#E8C787" strokeOpacity="0.8" strokeWidth="1.5" />
+        <line x1="22" y1="560" x2="-58" y2="600" stroke="#6D1D28" strokeOpacity="0.7" strokeWidth="2.5" />
         <text x="-140" y="630" {...LABEL}>{logoDesign.diagram.hair}</text>
-        <text x="362" y="720" {...LABEL} fill="#E8C787">
+        <text x="362" y="720" {...LABEL} fill="#7E5733">
           {logoDesign.diagram.whole}
         </text>
       </g>
@@ -337,7 +368,7 @@ const FLOW_PATH = 'M100 6 C56 70 -8 200 -10 300 C-12 368 30 412 94 412 C150 412 
 function ContinuityFigure() {
   return (
     <svg className="gfig__wide" viewBox="-24 -16 960 448" role="img" aria-label="The Dewology secondary logo with a line flowing from the dewdrop, down the hair and into the word EWOLOGY">
-      <image href="/assets/logo/secondary-logo.svg" x="0" y="0" width="936" height="398" />
+      <Wordmark label={null} x="0" y="0" width="936" height="398" />
       <path className="gfig__flow" d={FLOW_PATH} pathLength="1" />
       <circle className="gfig__flow-start" cx="100" cy="6" r="9" />
       <path className="gfig__flow-head" d="M896 326 L920 338 L896 350 Z" />
@@ -381,10 +412,12 @@ function Gestalt() {
 
 const PRINCIPLES = logoDesign.gestalt;
 
-function GestaltHead() {
+// On the TV stops the headline is the principle being shown ("Figure-ground"),
+// the rubric's own word; the stacked phone version keeps the general heading
+function GestaltHead({ title = logoDesign.gestaltHeading }) {
   return (
     <div className="gestalt__head">
-      <h2 className="ct1__subheading">{logoDesign.gestaltHeading}</h2>
+      <h2 className="ct1__subheading">{title}</h2>
       <p className="gestalt__intro">{logoDesign.gestaltIntro}</p>
     </div>
   );
@@ -406,7 +439,14 @@ function GestaltSticky() {
   return (
     <div className="gestalt-scroll" ref={ref} style={{ '--count': PRINCIPLES.length }}>
       {PRINCIPLES.map((g, i) => (
-        <span key={g.id} id={`ct1-gestalt-${g.id}`} className="gestalt-scroll__marker" data-stop="" style={{ '--at': i / (PRINCIPLES.length - 1) }} />
+        <span
+          key={g.id}
+          id={`ct1-gestalt-${g.id}`}
+          className="gestalt-scroll__marker"
+          data-stop=""
+          data-label={`${logoDesign.stopLabels.gestalt} · ${g.title}`}
+          style={{ '--at': i / (PRINCIPLES.length - 1) }}
+        />
       ))}
       <div className="gestalt-scroll__sticky">
         <div className="gestalt__stage">
@@ -425,7 +465,7 @@ function GestaltSticky() {
         </div>
 
         <div className="gestalt__controls">
-          <GestaltHead />
+          <GestaltHead title={mode.title} />
           <div className="gestalt__buttons" role="group" aria-label="Gestalt principles">
             {PRINCIPLES.map((g) => (
               <button
@@ -487,10 +527,10 @@ const ZOOM = 2.3;
 // When the figure-ground stop opens, the lens tours both gaps once on its
 // own, so the demo works hands-free while presenting (logo units).
 const TOUR = [
-  { x: 96, y: 480 }, // rest: the gap between hair and face
-  { x: 178, y: 345, hold: 650 }, // up along that gap
+  { x: 410, y: 560 }, // rest: parked on the paper beside the chin (on the head it read as headphones)
+  { x: 178, y: 345, hold: 650 }, // over to the gap between hair and face
   { x: 250, y: 388, hold: 750 }, // across to the gap between face and dewdrop
-  { x: 96, y: 480 }, // back to rest
+  { x: 410, y: 560 }, // back to rest
 ];
 const TOUR_MOVES = [1100, 900, 1200]; // ms for each move
 const TOUR_DELAY = 600; // let the stop settle first
@@ -519,8 +559,7 @@ function Lens() {
       const h = stage.clientHeight;
       const r = Math.round(Math.min(90, Math.max(56, w * 0.14)));
       setSize({ w, h, r });
-      // start on the dark gap between the hair and the face (figure-ground),
-      // away from the labels on the right
+      // start parked beside the face, below the labels on the right
       setPos((p) => p ?? toPx(TOUR[0], w, h));
     };
     measure();
@@ -653,7 +692,7 @@ function Lens() {
 
 function PaletteType() {
   return (
-    <div className="ct1-palette frame" id="ct1-palette" data-stop="">
+    <div className="ct1-palette frame" id="ct1-palette" data-stop="" data-label={logoDesign.stopLabels.palette}>
       <h2 className="ct1__subheading">{logoDesign.paletteHeading}</h2>
       <Swatches swatches={logoDesign.palette} />
       <FontSpecimen items={logoDesign.typography} />

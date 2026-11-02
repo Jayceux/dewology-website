@@ -1,18 +1,13 @@
-// Wraps each part of the page.
-//  bg     = the page color while this section is on screen
-//  via    = extra colors to blend through on the way in (optional)
-//  theme  = 'dark' (light text) or 'light' (dark text)
+// Wraps each part of the page. Sections paint nothing themselves: the
+// watercolour stage behind the page is the paper (see src/stage).
 //  stop   = whether → / Page Down stops here when presenting
 //  navId  = which menu link to highlight (defaults to id)
-export default function Section({ id, bg, via, theme = 'dark', stop = true, navId, className = '', label, children }) {
+export default function Section({ id, stop = true, navId, className = '', label, children }) {
   return (
     <section
       id={id}
       data-section=""
       data-nav={navId}
-      data-bg={bg}
-      data-via={via ? via.join(',') : undefined}
-      data-theme={theme}
       data-stop={stop ? '' : undefined}
       aria-label={label}
       className={`section ${className}`}

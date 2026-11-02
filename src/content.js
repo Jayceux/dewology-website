@@ -19,6 +19,32 @@ export const nav = [
   { id: 'poster', label: 'Poster' },
 ];
 
+// The full-screen card that opens each chapter of the presentation:
+// a big number, the title, and what the chapter shows (so the class can
+// follow along)
+export const chapters = {
+  concept: {
+    number: '01',
+    title: 'Business concept',
+    contents: ['Our history', 'Mission and vision', 'The founders', 'Sample products'],
+  },
+  logo: {
+    number: '02',
+    title: 'Logo design',
+    contents: ['From a single drop to the final mark', 'Primary and secondary logos', 'Gestalt principles', 'Palette and type'],
+  },
+  brandPost: {
+    number: '03',
+    title: 'First brand post',
+    contents: ['The Instagram post', 'Its caption', 'Palette and type'],
+  },
+  poster: {
+    number: '04',
+    title: 'Promotional poster',
+    contents: ['The poster', 'Palette and type'],
+  },
+};
+
 export const hero = {
   intro: 'Five essentials. One easy routine. Skincare made by students, for students.',
   button: 'See the routine',
@@ -39,6 +65,8 @@ export const story = {
 };
 
 export const mission = {
+  // what the corner counter says on this stop (the rubric's words)
+  stopLabel: 'Business concept: Mission and vision',
   label: 'Mission',
   text: 'To offer accessible, budget-friendly skincare that builds healthy habits.',
 };
@@ -51,6 +79,8 @@ export const vision = {
 // Photos go in public/assets/owners/ with these exact file names.
 // If a photo is missing, the site shows the initials instead.
 export const owners = {
+  // what the corner counter says on this stop (the rubric's word: owners)
+  stopLabel: 'Business concept: Owners',
   heading: 'The founders',
   intro: 'Four BSIT 4D students who wanted skincare to feel simple again.',
   people: [
@@ -85,18 +115,27 @@ export const starterKit = {
 
 export const logoDesign = {
   label: 'CT#1 Logo design',
-  heading: 'From a single drop.',
-  intro: 'How the Dewology mark was made, draft by draft, from draft sketches 1 and 2.',
+  // the process, one stop each: the drop, each whole sketch sheet, then
+  // the picks taken from it (the final mark follows as "The final marks")
   stages: [
     { title: 'A single drop', text: 'Where it started: one simple dewdrop.' },
+    { title: 'Draft sketch 1', text: 'The whole first sheet: the color tests and the wordmarks.', alt: 'Draft sketch 1, the whole sheet' },
     { title: 'Color tests', text: 'Red and black, pink, then gold.' },
     { title: 'Three wordmarks', text: 'Three “DEWOLOGY” type options.' },
+    { title: 'Draft sketch 2', text: 'The whole second sheet: the face profiles.', alt: 'Draft sketch 2, the whole sheet' },
     { title: 'Face profiles', text: 'Purple, pink and black, black and red, green.' },
-    { title: 'Final mark', text: 'A dewdrop and a woman’s profile in one gold gradient.' },
   ],
   marksHeading: 'The final marks',
-  primary: { title: 'Primary logo', text: 'Gold dewdrop and face mark on black.' },
+  marksText: 'A dewdrop and a woman’s profile in one gold gradient.',
+  primary: { title: 'Primary logo', text: 'The gold dewdrop and face mark.' },
   secondary: { title: 'Secondary logo', text: 'The mark becomes the “D”, followed by “EWOLOGY”.' },
+  // the corner counter on each CT#1 stop: the part of CT#1 it shows
+  stopLabels: {
+    process: 'CT#1 Process',
+    marks: 'CT#1 Final mark · Primary and secondary logos',
+    gestalt: 'CT#1 Gestalt',
+    palette: 'CT#1 Palette and type',
+  },
   gestaltHeading: 'How the mark works',
   gestaltIntro: 'Three Gestalt principles, each shown on the logo.',
   lensHint: 'The gaps are lit up here. Drag the dew drop over one to see it as it really is.',
@@ -118,7 +157,7 @@ export const logoDesign = {
     {
       id: 'figure-ground',
       title: 'Figure-ground',
-      text: 'The eye separates the gold shapes (the figure) from the dark background (the ground). The thin dark gaps between the shapes are ground too, and they draw the outline of the face.',
+      text: 'The eye separates the gold shapes (the figure) from the background (the ground). The thin gaps between the shapes are ground too, and they draw the outline of the face.',
     },
     {
       id: 'closure',
@@ -132,7 +171,6 @@ export const logoDesign = {
     },
   ],
   palette: [
-    { name: 'Black', hex: '#050404' },
     { name: 'Gold', hex: '#E8C787' },
     { name: 'Gold gradient', hex: '#B8894A', gradientFrom: '#E8C787' },
   ],
@@ -195,6 +233,8 @@ export const poster = {
 // the group (names come from the founders list above).
 export const footer = {
   name: 'Dewology',
+  // the closing words of the presentation, above the four names
+  thanks: 'Thank you.',
   group: 'BSIT 4D · Group 2',
   instagram: { label: '@jayceux', url: 'https://www.instagram.com/jayceux/' },
   // Read aloud after the handle (screen readers)

@@ -5,7 +5,6 @@ import { useSite } from '../lib/site';
 import useMediaQuery from '../lib/useMediaQuery';
 import kitMeta from '../data/kit-meta.json';
 import Section from '../components/Section';
-import CtBadge from '../components/CtBadge';
 import './Routine.css';
 
 const EASE_OUT = [0.23, 1, 0.32, 1];
@@ -17,10 +16,9 @@ export default function Routine() {
   const headRef = useRef(null);
   const headInView = useInView(headRef, { once: true, amount: 0.5 });
   return (
-    <Section id="routine" navId="concept" bg="#0C0807" theme="dark" stop={false} label="Sample products">
+    <Section id="routine" navId="concept" stop={false} label={routine.label}>
       <div className="section__inner">
         <header className="routine__head frame" id="routine-intro" data-stop="" ref={headRef} data-inview={headInView}>
-          <CtBadge className="routine__label" label={routine.label} />
           <h2 className="routine__heading">
             {/* keep hyphenated words like "five-step" on one line */}
             {routine.heading.split(' ').map((word, i) => (
@@ -96,7 +94,6 @@ function StickySteps() {
 
       <div className="steps__sticky">
         <div className="steps__stage">
-          <div className="steps__glow" aria-hidden="true" />
           <AnimatePresence initial={false}>
             <motion.span
               key={`n-${product.step}`}
@@ -138,7 +135,10 @@ function StickySteps() {
                 <span className="step__num">{p.step}</span>
                 <span className="step__body">
                   <span className="step__name">{p.name}</span>
-                  <span className="step__text">{p.text}</span>
+                  {/* only the current step's description is open */}
+                  <span className="step__more">
+                    <span className="step__text">{p.text}</span>
+                  </span>
                 </span>
               </button>
             </li>
@@ -156,7 +156,6 @@ function StackedSteps() {
       {products.map((p) => (
         <li key={p.id} className="stack__item" id={`step-${p.step}`}>
           <div className="stack__stage">
-            <div className="steps__glow" aria-hidden="true" />
             <img className="stack__product" src={p.image} alt={`Dewology ${p.name}`} width="1000" height="1250" loading="lazy" />
           </div>
           <div className="stack__copy">
@@ -190,13 +189,12 @@ function StarterKit() {
       <div className="kit__copy">
         <h3 className="kit__name">{starterKit.name}</h3>
         <p className="kit__text">{starterKit.text}</p>
-        <button type="button" className="kit__toggle" onClick={() => setOpen((o) => !o)} aria-pressed={open}>
+        <button type="button" className="button kit__toggle" onClick={() => setOpen((o) => !o)} aria-pressed={open}>
           {open ? starterKit.closeButton : starterKit.openButton}
         </button>
       </div>
 
       <div className="kit__stage" data-open={open}>
-        <div className="kit__glow" aria-hidden="true" />
         <img className="kit__layer" src="/assets/products/kit-back.webp" alt="" width="1600" height="1100" />
         <div className="kit__bottles" style={{ clipPath: `inset(-50% 0 ${clipBottom} 0)` }}>
           {kitMeta.bottles.map((b, i) => {

@@ -60,7 +60,7 @@
   gap: 10px;
 }
 
-.specimen__logo img {
+.specimen__wordmark {
   width: min(360px, 100%);
   height: auto;
 }

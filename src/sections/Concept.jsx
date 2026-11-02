@@ -1,16 +1,17 @@
 import { useRef, useState } from 'react';
 import { useInView } from 'motion/react';
-import { story, mission, vision, owners } from '../content';
+import { story, mission, vision, owners, chapters } from '../content';
 import Section from '../components/Section';
-import CtBadge from '../components/CtBadge';
+import ChapterCard from '../components/ChapterCard';
 import './Concept.css';
 
 // Business Concept: story, mission and vision, founders.
 // The page warms from night to blush on the way in (the "glow-up").
 export default function Concept() {
   return (
-    <Section id="concept" bg="#E4C7B9" via={['#3A2418', '#B8894A']} theme="light" stop={false} label="Business concept">
+    <Section id="concept" stop={false} label="Business concept">
       <div className="section__inner concept">
+        <ChapterCard id="chapter-concept" chapter={chapters.concept} />
         <Story />
         <MissionVision />
         <Founders />
@@ -23,9 +24,8 @@ function Story() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '0px 0px -20% 0px' });
   return (
-    <div id="story" className="story frame" data-stop="" ref={ref} data-inview={inView}>
+    <div id="story" className="story frame" data-stop="" data-label={story.label} ref={ref} data-inview={inView}>
       <div className="story__loud">
-        <CtBadge className="story__label" label={story.label} />
         <ul className="story__list" aria-label="What skincare got loud with">
           {story.loud.map((item, i) => (
             <li key={item} style={{ '--i': i }}>
@@ -44,7 +44,7 @@ function Story() {
 
 function MissionVision() {
   return (
-    <div id="mission" className="mv frame" data-stop="">
+    <div id="mission" className="mv frame" data-stop="" data-label={mission.stopLabel}>
       <figure className="mv__item">
         <figcaption className="mv__label">
           <Drop /> {mission.label}
@@ -73,7 +73,7 @@ function Founders() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '0px 0px -15% 0px' });
   return (
-    <div id="founders" className="founders frame" data-stop="" ref={ref} data-inview={inView}>
+    <div id="founders" className="founders frame" data-stop="" data-label={owners.stopLabel} ref={ref} data-inview={inView}>
       <div className="founders__head">
         <h2 className="founders__heading">{owners.heading}</h2>
         <p className="founders__intro">{owners.intro}</p>

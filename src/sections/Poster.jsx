@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import { useInView } from 'motion/react';
-import { poster } from '../content';
+import { poster, chapters } from '../content';
 import Section from '../components/Section';
-import CtBadge from '../components/CtBadge';
+import ChapterCard from '../components/ChapterCard';
 import Swatches from '../components/Swatches';
 import FontSpecimen from '../components/FontSpecimen';
 import './Poster.css';
@@ -14,8 +14,9 @@ export default function Poster() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.35 });
   return (
-    <Section id="poster" bg="#F3B6BE" theme="light" className="ct3" label="CT#3 Promotional poster">
-      <div className="section__inner ct3__layout">
+    <Section id="poster" className="ct3" stop={false} label={poster.label}>
+      <ChapterCard id="chapter-poster" chapter={chapters.poster} />
+      <div className="section__inner ct3__layout frame" id="ct3-poster" data-stop="">
         <figure className="ct3__poster" ref={ref} data-inview={inView}>
           <img
             src={poster.image}
@@ -27,7 +28,6 @@ export default function Poster() {
           />
         </figure>
         <div className="ct3__details">
-          <CtBadge className="ct3__label" label={poster.label} />
           <Swatches swatches={poster.palette} />
           <FontSpecimen items={poster.typography} />
         </div>

@@ -1,5 +1,5 @@
 .nav {
-  --nav-ink: var(--gold);
+  --nav-ink: var(--rose);
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 30;
@@ -8,13 +8,24 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--safe-top) var(--page-inset-r) 0 var(--page-inset-l);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: color 200ms ease;
+  /* sits straight on the paint: every stop is a full frame below it */
+  transition: background-color 300ms ease;
 }
 
-.nav[data-theme='light'] {
-  --nav-ink: var(--night);
+/* The one stop where something runs up under the menu (the CT#2 caption,
+   zoomed in): the menu gets a soft blush fade so its links stay readable */
+@media (min-width: 901px) {
+  html[data-active-stop='ct2-caption'] .nav {
+    background: linear-gradient(to bottom, var(--paper) 62%, rgba(244, 210, 214, 0));
+  }
+}
+
+/* Phones scroll freely under the menu, so it fades in from the paper
+   (a soft edge, never a hard strip across the paint) */
+@media (max-width: 900px) {
+  .nav {
+    background: linear-gradient(to bottom, var(--paper) 62%, rgba(244, 210, 214, 0));
+  }
 }
 
 .nav__brand {
@@ -29,21 +40,6 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: left center;
-  transition: opacity 200ms ease;
-}
-
-.nav__logo--ink {
-  opacity: 0;
-}
-
-.nav[data-theme='light'] .nav__logo--gold {
-  opacity: 0;
-}
-
-.nav[data-theme='light'] .nav__logo--ink {
-  opacity: 1;
 }
 
 .nav__links {
@@ -70,7 +66,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50% 0 50% 50%;
-  background: var(--bronze);
+  background: var(--rose);
   transform: translateX(-50%) rotate(-45deg) scale(0.6);
   opacity: 0;
   transition: opacity 200ms ease, transform 200ms var(--ease-out);
@@ -115,8 +111,8 @@
     flex-direction: column;
     gap: 0;
     padding: 8px var(--gutter) 24px;
-    background: var(--night);
-    border-bottom: 1px solid rgba(232, 199, 135, 0.25);
+    background: var(--paper);
+    border-bottom: 1px solid rgba(122, 36, 54, 0.18);
     transform: translateY(-8px);
     opacity: 0;
     visibility: hidden;
@@ -132,7 +128,7 @@
   }
 
   .nav__links a {
-    color: var(--gold);
+    color: var(--rose);
     font-family: var(--font-display);
     font-size: 1.5rem;
     padding: 14px 0;

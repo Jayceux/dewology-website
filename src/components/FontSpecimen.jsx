@@ -1,3 +1,4 @@
+import Wordmark from './Wordmark';
 import './FontSpecimen.css';
 
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789';
@@ -16,7 +17,7 @@ export default function FontSpecimen({ items, className = '' }) {
           </div>
           {f.fromLogo ? (
             <figure className="specimen__logo">
-              <img src="/assets/logo/secondary-logo.svg" alt={`${f.sample} wordmark set in ${f.name}`} width="936" height="398" />
+              <Wordmark className="specimen__wordmark" label={`${f.sample} wordmark set in ${f.name}`} />
               {f.note && <figcaption className="specimen__note">{f.note}</figcaption>}
             </figure>
           ) : (

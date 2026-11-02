@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useInView, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { brandPost } from '../content';
+import { brandPost, chapters } from '../content';
 import useMediaQuery from '../lib/useMediaQuery';
 import Section from '../components/Section';
-import CtBadge from '../components/CtBadge';
+import ChapterCard from '../components/ChapterCard';
 import Swatches from '../components/Swatches';
 import FontSpecimen from '../components/FontSpecimen';
 import './BrandPost.css';
@@ -74,7 +74,8 @@ export default function BrandPost() {
   }, [wide]);
 
   return (
-    <Section id="brand-post" bg="#E4C7B9" theme="light" className="ct2" stop={false} label="CT#2 First brand post">
+    <Section id="brand-post" className="ct2" stop={false} label={brandPost.label}>
+      <ChapterCard id="chapter-brand-post" chapter={chapters.brandPost} />
       <div className="ct2-scroll" ref={scrollRef}>
         {/* Invisible markers: the two presentation stops */}
         <span id="ct2-post" className="ct2-scroll__marker" data-stop="" style={{ '--at': 0 }} />
@@ -82,7 +83,6 @@ export default function BrandPost() {
         <div className="ct2-scroll__sticky" ref={stageRef}>
           <div className="section__inner ct2__layout" ref={ref} data-inview={inView} data-zoom={zoomed}>
             <header className="ct2__intro">
-              <CtBadge className="ct2__label" label={brandPost.label} />
               <h2 className="ct2__heading">{brandPost.heading}</h2>
               <p className="ct2__tagline">{brandPost.tagline}</p>
             </header>

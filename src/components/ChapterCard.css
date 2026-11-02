@@ -1,0 +1,140 @@
+/* A chapter's opening card: the words on the left, a giant outline
+   number on the right, the water (drawn by the stage) along the bottom */
+.chapter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.chapter__num {
+  position: absolute;
+  right: -1%;
+  top: 50%;
+  transform: translateY(-52%);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: min(54vh, 29vw);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  /* a solid numeral that the shared filter turns into one clean 2.5px
+     outline (a text stroke would also trace the overlaps inside the "4") */
+  color: var(--rose);
+  filter: url(#numeral-outline);
+  pointer-events: none;
+  user-select: none;
+}
+
+.chapter__words {
+  position: relative;
+  /* the full width of the card: the reveal paints only inside this box, so
+     a long title word ("PROMOTIONAL", or whatever content.js says) must
+     never reach past it. The title and list keep their own widths. */
+  max-width: none;
+}
+
+.chapter__title {
+  max-width: 9.5ch;
+  margin-bottom: clamp(32px, 6vh, 64px);
+  font-size: clamp(3.25rem, 6.6vw, 8rem);
+  font-weight: 500;
+  line-height: 0.98;
+  color: var(--rose);
+}
+
+.chapter__contents {
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: chapter-item;
+}
+
+.chapter__contents li {
+  text-wrap: pretty; /* no single word left alone on a second line */
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: clamp(8px, 1.4vh, 14px) 0;
+  border-top: 1px solid rgba(122, 36, 54, 0.18);
+  font-size: var(--text-lead);
+  line-height: 1.35;
+  color: var(--berry);
+}
+
+.chapter__contents li:last-child {
+  border-bottom: 1px solid rgba(122, 36, 54, 0.18);
+}
+
+.chapter__contents li::before {
+  content: counter(chapter-item, decimal-leading-zero);
+  counter-increment: chapter-item;
+  min-width: 2ch;
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+/* The reveal: the drop lands on the title and the words spread outward
+   from where it hit (--drop-x / --drop-y, set by the stage), like a drop
+   spreading through water: a soft-edged circle that grows until it has
+   uncovered the whole card.
+   With the stage running, the words wait from the very start, not only
+   once the card becomes the current stop, so they never show for a moment
+   and vanish again. The stage always lets them in (as the drop lands,
+   after 2.6 s at most, or when the presenter moves on); without the stage,
+   with reduced motion, or in a browser that cannot animate the circle,
+   they are simply shown. */
+@property --reveal-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 1500px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-stage='on'] .chapter__words {
+    -webkit-mask-image: radial-gradient(
+      circle at var(--drop-x, 30%) var(--drop-y, 40%),
+      #000 var(--reveal-r),
+      transparent calc(var(--reveal-r) + 200px)
+    );
+    mask-image: radial-gradient(
+      circle at var(--drop-x, 30%) var(--drop-y, 40%),
+      #000 var(--reveal-r),
+      transparent calc(var(--reveal-r) + 200px)
+    );
+    transition: --reveal-r 1700ms cubic-bezier(0.3, 0.1, 0.25, 1);
+  }
+
+  html[data-stage='on'] .chapter__words:not([data-reveal='in']) {
+    --reveal-r: -220px;
+  }
+
+  /* the stage's general headline reveal (a blur-in) does not apply here */
+  .chapter__words[data-reveal] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .chapter {
+    min-height: 70svh;
+    padding-top: calc(var(--nav-height) + 24px);
+  }
+
+  .chapter__num {
+    top: calc(var(--nav-height) + 8px);
+    transform: none;
+    font-size: 40vw;
+  }
+
+  .chapter__words {
+    max-width: none;
+  }
+}
+

@@ -11,7 +11,19 @@ html {
   -webkit-tap-highlight-color: transparent;
   /* --page-bg follows the section on screen (set in site.jsx) */
   scrollbar-width: thin;
-  scrollbar-color: rgba(184, 137, 74, 0.7) var(--page-bg, var(--night));
+  scrollbar-color: rgba(122, 36, 54, 0.45) var(--paper);
+}
+
+/* On the TV the presentation is stepped with the keys: no scrollbar strip
+   down the right edge of every frame */
+@media (min-width: 1600px) {
+  html {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Fire taps immediately (no double-tap-zoom wait) */
@@ -32,8 +44,8 @@ button,
 
 body {
   margin: 0;
-  background: var(--night);
-  color: var(--cream);
+  background: var(--paper);
+  color: var(--berry);
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: 1.65;
@@ -54,6 +66,7 @@ blockquote {
 h1,
 h2,
 h3 {
+  color: var(--rose);
   font-family: var(--font-display);
   font-weight: 500;
   line-height: 1.08;
@@ -82,18 +95,14 @@ button {
 }
 
 ::selection {
-  background: var(--gold);
-  color: var(--night);
+  background: var(--bottle);
+  color: var(--berry);
 }
 
 :focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--rose);
   outline-offset: 3px;
   border-radius: 4px;
-}
-
-[data-theme='light'] :focus-visible {
-  outline-color: var(--night);
 }
 
 .visually-hidden {
@@ -105,8 +114,8 @@ button {
   white-space: nowrap;
 }
 
-/* Sections paint no background of their own: the fixed BackgroundGlow layer
-   behind them crossfades between each section's color as you scroll. */
+/* Sections paint no background of their own: the watercolour stage behind
+   them (src/stage) is the paper, and paints each stop as it arrives. */
 .section {
   position: relative;
   z-index: 1;
@@ -114,18 +123,6 @@ button {
   overflow-x: clip; /* glows may spill down, never sideways (no phone side-scroll) */
 }
 
-/* Extra runway so the night-to-blush warm-up has room to happen */
-.section[data-via] {
-  padding-top: 75vh;
-}
-
-.section[data-theme='dark'] {
-  color: var(--cream);
-}
-
-.section[data-theme='light'] {
-  color: var(--night);
-}
 
 .section__inner {
   max-width: var(--content-max);
@@ -137,58 +134,19 @@ button {
    TV screens a frame is exactly one screen tall and centres its content
    under the menu, so every stop shows one whole thing and nothing of the
    next. Phones scroll freely, so there content keeps its natural height. */
+/* Phones: anything the page jumps to lands below the fixed menu */
+@media (max-width: 900px) {
+  [data-stop],
+  .section {
+    scroll-margin-top: calc(var(--nav-height) + 12px);
+  }
+}
+
 @media (min-width: 901px) {
   .frame {
     min-height: 100svh;
     padding-top: calc(var(--nav-height) + 24px);
     padding-bottom: 56px;
-  }
-}
-
-/* Requirement badge ("CT#1 Logo design"): what the professor is grading,
-   so it reads from across the room. Colours come from each section. */
-.ct-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  width: fit-content;
-  padding: 5px 22px 5px 5px;
-  border: 1.5px solid var(--badge-color, currentColor);
-  border-radius: 999px;
-  color: var(--badge-color, currentColor);
-  font-family: var(--font-body);
-  font-size: var(--text-lead);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.ct-badge__num {
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: var(--badge-color, currentColor);
-  color: var(--badge-ink, #fff);
-  font-size: 1.1em;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-/* Phones: just the filled pill and the words after it, so a long badge
-   ("Business concept · Sample products") can wrap under the pill cleanly */
-@media (max-width: 480px) {
-  .ct-badge {
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    padding: 0;
-    border: 0;
-  }
-
-  .ct-badge > span {
-    white-space: nowrap;
-  }
-
-  .ct-badge__num {
-    padding: 6px 14px;
-    font-size: 1em;
   }
 }
 
@@ -200,8 +158,8 @@ button {
   padding: 16px 28px;
   border: 0;
   border-radius: 999px;
-  background: var(--gold);
-  color: var(--night);
+  background: var(--rose);
+  color: var(--paper);
   font-weight: 500;
   font-size: var(--text-body);
   text-decoration: none;
@@ -214,6 +172,6 @@ button {
 
 @media (hover: hover) and (pointer: fine) {
   .button:hover {
-    background: #f0d59f;
+    background: #8f2c42;
   }
 }

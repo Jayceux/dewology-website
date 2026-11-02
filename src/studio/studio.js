@@ -549,20 +549,29 @@ async function renderAll() {
   return out;
 }
 
-// Live 3D for the website hero: export the Glow Serum as a .glb model
-// (labels baked in as textures). Saved to public/assets/products/serum.glb.
-async function exportGLB() {
+// Live 3D for the website: export a product as a .glb model (labels baked
+// in as textures), saved to public/assets/products/<id>.glb.
+//   exportGLB()            → the Glow Serum
+//   exportGLB('cleanser')  → one product;  exportAllGLB() → all five
+async function exportGLB(id = 'serum') {
   const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
   await document.fonts.load('600 40px Montserrat');
   await document.fonts.load('500 40px Montserrat');
-  const p = PRODUCTS.find((x) => x.id === 'serum');
+  const p = PRODUCTS.find((x) => x.id === id);
   const model = await p.build(p);
-  model.name = 'GlowSerum';
+  model.name = p.name.replace(/\s+/g, '');
   const glb = await new GLTFExporter().parseAsync(model, { binary: true });
-  await fetch('/__save-render?name=serum.glb', { method: 'POST', body: glb });
-  return { name: 'serum.glb', kb: Math.round(glb.byteLength / 1024) };
+  await fetch(`/__save-render?name=${id}.glb`, { method: 'POST', body: glb });
+  return { name: `${id}.glb`, kb: Math.round(glb.byteLength / 1024) };
+}
+
+async function exportAllGLB() {
+  const out = [];
+  for (const p of PRODUCTS) out.push(await exportGLB(p.id));
+  return out;
 }
 
 window.renderAll = renderAll;
 window.exportGLB = exportGLB;
+window.exportAllGLB = exportAllGLB;
 document.querySelector('#render').addEventListener('click', renderAll);

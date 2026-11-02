@@ -3,18 +3,24 @@
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  /* Primary identity (CT#1) */
-  --night: #050404;
+  /* The watercolour world. Every colour is the bottle's own pink (hue 352°),
+     lighter or darker, so page, paint and type belong together. Gold is
+     kept for the logo alone. No black, no white. */
+  --paper: #f4d2d6; /* blush: the page itself (the stage paints it live) */
+  --mist: #fae5e8; /* raised surfaces: frames, chips, mats */
+  --petal: #fae5e8;
+  --bottle: #eba2ac; /* the product glass; the main wash */
+  --rose-wash: #cc5c6b; /* drying edges, deeper paint */
+  --rose: #6d1d28; /* headings, buttons, the menu (8.1:1 on blush) */
+  --berry: #541820; /* body text (9.8:1 on blush, 6.7:1 on bottle pink) */
+  --muted: #7f3942; /* quiet text (5.9:1 on blush) */
+  --foil: #7e5733; /* the logo's darker gold (logo only) */
+  --foil-gradient: linear-gradient(120deg, #7e5733 0%, #a87a43 28%, #d9b26a 50%, #b88a4e 70%, #7e5733 100%);
+
+  /* The logo's own gold (CT#1), shown on deep rose where it is exhibited */
   --gold: #e8c787;
   --bronze: #b8894a;
   --gold-gradient: linear-gradient(140deg, #f3dfae 0%, #e8c787 38%, #b8894a 100%);
-
-  /* Site-only supporting tones (used for the night-to-blush warm-up) */
-  --ember: #3a2418;
-  --blush: #e4c7b9;
-  --cream: #f6e7de; /* light text on dark */
-  --ink: #2a1a12; /* body text on blush */
-  --muted-on-dark: #d9cbbf;
 
   /* CT#2 brand post palette */
   --ct2-blush: #e4c7b9;
@@ -68,11 +74,12 @@
 }
 
 /* TV tier: the site is presented on a 1920×1080 TV viewed from across a
-   classroom, so labels and body text step up on wide screens. */
+   classroom, so on wide screens nothing you read is under 20px: notes and
+   labels 20px, body text 24px, lead text 28px. */
 @media (min-width: 1600px) {
   :root {
-    --text-small: 1.125rem;
-    --text-body: 1.25rem;
-    --text-lead: 1.5rem;
+    --text-small: 1.25rem;
+    --text-body: 1.5rem;
+    --text-lead: 1.75rem;
   }
 }
