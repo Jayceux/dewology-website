@@ -162,8 +162,8 @@ export const STOP_STAGE = {
   'ct1-marks': {
     // each mark in its own warm light
     light: [
-      { anchor: '.marks__card--primary .marks__art', at: [0.5, 0.5], r: 0.38, tint: 'warm' },
-      { anchor: '.marks__art--secondary', at: [0.5, 0.5], r: 0.4, tint: 'warm' },
+      { anchor: '.marks__primary svg', at: [0.5, 0.5], r: 0.38, tint: 'warm' },
+      { anchor: '.marks__art--secondary svg', at: [0.5, 0.5], r: 0.4, tint: 'warm' },
     ],
   },
   'ct1-gestalt-figure-ground': {
@@ -220,7 +220,7 @@ export const STOP_STAGE = {
     land: { anchor: '.finale__rise', at: [0.5, 1.05], water: true },
     light: [
       { anchor: '.finale__rise', at: [0.5, 0.5], r: 0.55, tint: 'warm' },
-      { anchor: '.finale__names', at: [0.5, 0.5], r: 0.4, tint: 'soft', strength: 0.7 },
+      { anchor: '.finale__tagline', at: [0.5, 0.5], r: 0.4, tint: 'soft', strength: 0.7 },
     ],
   },
 };

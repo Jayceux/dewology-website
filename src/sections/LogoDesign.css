@@ -37,11 +37,10 @@
   gap: clamp(28px, 5vh, 56px);
 }
 
-/* Finished stages disappear at the content's left edge (not into the margin);
-   upcoming ones may still peek in from the right. */
-/* a little room on the left so the first card's mat is never sliced */
+/* The stages run the full width of the screen: the one before the current
+   stage peeks in from the left, the one after from the right */
 .process__viewport {
-  clip-path: inset(-40% -100vw -40% -24px);
+  clip-path: inset(-40% -100vw);
 }
 
 .process__track {
@@ -61,14 +60,37 @@
   display: flex;
   flex-direction: column;
   gap: clamp(20px, 3vh, 32px);
-  /* one stage per frame: only the current one shows; the others fade
-     out as they slide away and in as they arrive */
+  /* one stage per frame: the current one shows in the middle, the ones
+     before and after wait faintly at its sides (so the room can see where
+     the process came from and that it goes on), and the rest stay hidden.
+     Each fades as it slides into or out of place */
   opacity: 0;
-  transition: opacity 300ms ease;
+  transform-origin: left center;
+  transition:
+    opacity 300ms ease,
+    transform 600ms var(--ease-out);
 }
 
 .stage[data-active='true'] {
   opacity: 1;
+}
+
+.stage[data-next='true'],
+.stage[data-prev='true'] {
+  opacity: 0.3;
+  transform: scale(0.92);
+}
+
+/* each faint stage shrinks away from the current one, keeping the gap even */
+.stage[data-prev='true'] {
+  transform-origin: right center;
+}
+
+/* the single drop is narrow: its stage is only as wide as its words, so
+   the next stage waits right beside it instead of across an empty gap */
+.process__track .stage[data-kind='drop'] {
+  flex: 0 0 auto;
+  max-width: clamp(340px, 52vw, 820px);
 }
 
 .stage__copy {
@@ -116,32 +138,12 @@
   width: auto;
 }
 
-/* A whole sketch sheet is drawn small on a wide page: its stage gets more
-   width and height than the crops, so the drawings read from the room */
-.stage[data-kind='sheet'] {
-  flex-basis: clamp(340px, 60vw, 980px);
-}
-
-.stage[data-kind='sheet'] .stage__visual {
-  height: min(calc(var(--visual-h) * 1.2), calc(100svh - 420px));
-}
-
-/* a whole sketch sheet, matted in mist like the crops taken from it */
-.process__sheet {
-  height: 100%;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
-  border-radius: 10px;
-  box-shadow:
-    0 0 0 10px var(--mist),
-    0 14px 30px rgba(109, 29, 40, 0.18);
-}
-
 .process__crops {
+  /* wide enough that the 10px mats around the drafts never touch */
+  --crop-gap: 32px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--crop-gap);
   width: 100%;
   height: 100%;
 }
@@ -158,10 +160,10 @@
 }
 
 .process__crop {
-  width: min(calc(var(--visual-h) * var(--ratio)), calc((100% - (var(--n) - 1) * 16px) / var(--n)));
+  width: min(calc(var(--visual-h) * var(--ratio)), calc((100% - (var(--n) - 1) * var(--crop-gap)) / var(--n)));
 }
 
-/* progress rail with the five stage names */
+/* progress rail with the stage names */
 .process__rail {
   position: relative;
 }
@@ -275,7 +277,11 @@
   }
 
   .process-stack .process__crops {
-    gap: 16px;
+    gap: var(--crop-gap);
+  }
+
+  .process-stack .process__crop {
+    width: min(calc(var(--visual-h) * var(--ratio)), calc((100% - (var(--n) - 1) * var(--crop-gap)) / var(--n)));
   }
 }
 
@@ -288,8 +294,11 @@
 }
 
 .marks__grid {
+  /* how many times wider the secondary logo's column is than the
+     primary's (keep in step with the columns below) */
+  --marks-wide: 1.7;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
   gap: clamp(20px, 3vw, 40px);
 }
 
@@ -300,10 +309,15 @@
   gap: 16px;
 }
 
+/* each logo and its caption share one centre line: the primary mark is
+   narrow and its caption wide, so starting both on one left edge would
+   leave the mark hanging off to one side */
 .marks__card figcaption {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
+  text-align: center;
   color: var(--berry);
 }
 
@@ -324,22 +338,30 @@
   border-radius: 20px;
   display: grid;
   place-items: center;
+  /* the logos are sized from this box (see below) */
+  container-type: size;
 }
 
 .marks__primary {
   position: relative;
   z-index: 1;
-  height: 78%;
 }
 
+/* Both logos are drawn at one shared height, so the mark in each is exactly
+   the same size and the two line up top and bottom: as tall as the frame
+   allows, but never so tall that the wide secondary logo (936 × 398)
+   outgrows its column. In the primary's box, the secondary's column is
+   --marks-wide times this box's width. */
 .marks__primary svg {
-  height: 100%;
+  display: block;
+  height: min(78cqh, 100cqw * var(--marks-wide) * 398 / 936);
   width: auto;
 }
 
 .marks__art--secondary svg {
-  width: 76%;
-  height: auto;
+  display: block;
+  height: min(78cqh, 100cqw * 398 / 936);
+  width: auto;
 }
 
 /* ── Gestalt explainer ─────────────────────────────────────── */
@@ -684,6 +706,11 @@
   .marks__grid,
   .gestalt__grid {
     grid-template-columns: 1fr;
+  }
+
+  .marks__grid {
+    /* one column: both logos have the same width to fit */
+    --marks-wide: 1;
   }
 
   .marks__art {

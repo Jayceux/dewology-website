@@ -36,7 +36,9 @@ function Story() {
       </div>
       <div className="story__answer">
         <h2 className="story__heading">{story.heading}</h2>
-        <p className="story__body">{story.body}</p>
+        <p className="story__body">
+          <span className="story__lead">{story.lead}</span> {story.body}
+        </p>
       </div>
     </div>
   );
@@ -74,10 +76,7 @@ function Founders() {
   const inView = useInView(ref, { once: true, margin: '0px 0px -15% 0px' });
   return (
     <div id="founders" className="founders frame" data-stop="" data-label={owners.stopLabel} ref={ref} data-inview={inView}>
-      <div className="founders__head">
-        <h2 className="founders__heading">{owners.heading}</h2>
-        <p className="founders__intro">{owners.intro}</p>
-      </div>
+      <h2 className="founders__heading">{owners.heading}</h2>
       <ul className="founders__list">
         {owners.people.map((person, i) => (
           <li key={person.name} className="founder" style={{ '--i': i }}>

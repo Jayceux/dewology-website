@@ -61,7 +61,9 @@ export const story = {
   // The "loud" things that get crossed out
   loud: ['10-step routines', 'Viral hacks', 'Pricey bottles'],
   heading: 'Made by students, for students.',
-  body: 'Skincare got loud. Four BSIT 4D students saw how hard it was just to start. So we built Dewology: five essentials, one easy routine, packed into a single Starter Kit.',
+  // the first sentence sits on a line of its own, then the rest follows
+  lead: 'Skincare shouldn’t feel like homework.',
+  body: 'So we kept only what your skin needs: five essentials, one easy routine, all in one Starter Kit.',
 };
 
 export const mission = {
@@ -82,7 +84,6 @@ export const owners = {
   // what the corner counter says on this stop (the rubric's word: owners)
   stopLabel: 'Business concept: Owners',
   heading: 'The founders',
-  intro: 'Four BSIT 4D students who wanted skincare to feel simple again.',
   people: [
     { name: 'Azhlee Kyree S. Badua', initials: 'AB', photo: '/assets/owners/azhlee-badua.jpg' },
     { name: 'Ross Christian F. Gundran', initials: 'RG', photo: '/assets/owners/ross-gundran.jpg' },
@@ -115,14 +116,12 @@ export const starterKit = {
 
 export const logoDesign = {
   label: 'CT#1 Logo design',
-  // the process, one stop each: the drop, each whole sketch sheet, then
-  // the picks taken from it (the final mark follows as "The final marks")
+  // the process, one stop each: the drop, then the drafts picked from the
+  // two sketch sheets (the final mark follows as "The final marks")
   stages: [
     { title: 'A single drop', text: 'Where it started: one simple dewdrop.' },
-    { title: 'Draft sketch 1', text: 'The whole first sheet: the color tests and the wordmarks.', alt: 'Draft sketch 1, the whole sheet' },
     { title: 'Color tests', text: 'Red and black, pink, then gold.' },
     { title: 'Three wordmarks', text: 'Three “DEWOLOGY” type options.' },
-    { title: 'Draft sketch 2', text: 'The whole second sheet: the face profiles.', alt: 'Draft sketch 2, the whole sheet' },
     { title: 'Face profiles', text: 'Purple, pink and black, black and red, green.' },
   ],
   marksHeading: 'The final marks',
@@ -229,13 +228,13 @@ export const poster = {
 
 // ── FOOTER ───────────────────────────────────────────────────
 
-// The closing frame: the logo builds itself again, then the tagline and
-// the group (names come from the founders list above).
+// The closing frame: the logo rises again, then the brand tagline (from the
+// top of this file, as on the opening) and the group.
 export const footer = {
   name: 'Dewology',
-  // the closing words of the presentation, above the four names
-  thanks: 'Thank you.',
   group: 'BSIT 4D · Group 2',
+  // the small line under the credits bar
+  copyright: '© 2026 Dewology',
   instagram: { label: '@jayceux', url: 'https://www.instagram.com/jayceux/' },
   // Read aloud after the handle (screen readers)
   instagramNote: ' on Instagram (opens in a new tab)',

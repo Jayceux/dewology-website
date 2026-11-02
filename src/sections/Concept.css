@@ -69,6 +69,13 @@
 .story__body {
   color: var(--berry);
   line-height: 1.7;
+  /* even lines, so the last one never ends on a word or two alone */
+  text-wrap: balance;
+}
+
+/* the hook sits on a line of its own */
+.story__lead {
+  display: block;
 }
 
 /* ── Mission and vision ───────────────────────────────────── */
@@ -124,20 +131,8 @@
   padding-top: calc(var(--nav-height) + 24px);
 }
 
-.founders__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 32px;
-}
-
 .founders__heading {
   font-size: var(--text-h2);
-}
-
-.founders__intro {
-  max-width: 34ch;
-  color: var(--berry);
 }
 
 .founders__list {
@@ -264,12 +259,6 @@
 
   .mv__item--offset {
     align-self: flex-start;
-  }
-
-  .founders__head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 
   .founders__list {

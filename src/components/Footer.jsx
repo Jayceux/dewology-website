@@ -1,14 +1,14 @@
-import { footer, owners } from '../content';
+import { brand, footer } from '../content';
 import Section from './Section';
 import Wordmark from './Wordmark';
 import './Footer.css';
 
 // The closing frame. The last dewdrop falls into the water (drawn by the
 // stage behind the page); the logo rises out of the rings with its
-// reflection opening beneath it, then "Thank you." and the four people
-// who made it settle in. The stage marks `.finale` with data-reveal as the
-// drop lands (see src/stage); without the stage, or with reduced motion,
-// everything is simply shown.
+// reflection opening beneath it, then the tagline the presentation opened
+// on rises in, line by line, over the class credit. The stage marks
+// `.finale` with data-reveal as the drop lands (see src/stage); without the
+// stage, or with reduced motion, everything is simply shown.
 export default function Footer() {
   return (
     <Section id="footer" className="footer" label="Footer">
@@ -20,18 +20,23 @@ export default function Footer() {
           <div className="finale__mirror" aria-hidden="true">
             <Wordmark className="finale__logo finale__logo--mirror" label={null} />
           </div>
-          <p className="finale__thanks">{footer.thanks}</p>
-          <ul className="finale__names">
-            {owners.people.map((person, i) => (
-              <li key={person.name} style={{ '--i': i }}>
-                {person.name}
-              </li>
+          <p className="finale__tagline">
+            <span className="visually-hidden">{brand.tagline}</span>
+            {brand.tagline.split(/(?<=\.)\s+/).map((line, i) => (
+              <span key={line} className="finale__line" style={{ '--i': i }} aria-hidden="true">
+                {line}
+              </span>
             ))}
-          </ul>
+          </p>
           <p className="finale__group">{footer.group}</p>
         </div>
-        <div className="footer__meta">
-          <span>{footer.name}</span>
+        {/* one signature line: the menu at the top already carries the logo
+            and the chapters, so the footer only adds the year and the handle */}
+        <p className="footer__meta">
+          <span>{footer.copyright}</span>
+          <span className="footer__dot" aria-hidden="true">
+            ·
+          </span>
           <a href={footer.instagram.url} target="_blank" rel="noreferrer">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -41,7 +46,7 @@ export default function Footer() {
             {footer.instagram.label}
             <span className="visually-hidden">{footer.instagramNote}</span>
           </a>
-        </div>
+        </p>
       </footer>
     </Section>
   );

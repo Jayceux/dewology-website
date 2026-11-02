@@ -311,7 +311,9 @@
 /* ── Starter Kit ───────────────────────────────────────────── */
 .kit {
   display: grid;
-  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.6fr);
+  /* the words' column is wide enough for "Starter Kit" on one line at
+     heading size */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
   align-items: center;
   gap: clamp(32px, 4vw, 72px);
   padding-top: calc(var(--nav-height) + 40px);
@@ -325,14 +327,18 @@
   gap: 20px;
 }
 
+/* the kit is a frame of its own: its name at the same size as every other
+   frame's heading, its line at intro size */
 .kit__name {
-  font-size: var(--text-h3);
+  font-size: var(--text-h2);
   font-weight: 600;
+  line-height: 1.05;
   color: var(--rose);
 }
 
 .kit__text {
   color: var(--berry);
+  font-size: var(--text-lead);
   max-width: 30ch;
 }
 

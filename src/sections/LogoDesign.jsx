@@ -42,33 +42,14 @@ function OutlinedDrop() {
 
 const STAGE_VISUALS = [
   { kind: 'drop' },
-  { kind: 'sheet', n: 1 },
   { kind: 'crops', ids: ['redBlackDrop', 'pinkDrop', 'goldDrop'], source: 'Draft sketch 1' },
   { kind: 'crops', ids: ['wordmarkThin', 'wordmarkBold', 'wordmarkSerif'], source: 'Draft sketch 1' },
-  { kind: 'sheet', n: 2 },
   { kind: 'crops', ids: ['facePurple', 'facePink', 'faceRed', 'faceGreen'], source: 'Draft sketch 2' },
 ];
-
-// A whole draft sketch sheet, as the group drew it, matted like the crops
-function SketchSheet({ n, alt }) {
-  const src = `/assets/sketches/draft-sketch-${n}`;
-  return (
-    <img
-      className="process__sheet"
-      src={`${src}.png`}
-      srcSet={`${src}.png 800w, ${src}@2x.png 1600w`}
-      sizes="(min-width: 901px) 46vw, 90vw"
-      width="800"
-      height="450"
-      alt={alt}
-    />
-  );
-}
 
 function StageVisual({ index }) {
   const v = STAGE_VISUALS[index];
   if (v.kind === 'drop') return <OutlinedDrop />;
-  if (v.kind === 'sheet') return <SketchSheet n={v.n} alt={logoDesign.stages[index].alt} />;
   return (
     <div className="process__crops" style={{ '--n': v.ids.length }}>
       {v.ids.map((id) => (
@@ -119,17 +100,21 @@ function ProcessTimeline() {
   const [active, setActive] = useState(0);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
 
-  // Measure where each stage panel sits so each one can stop at the left edge
+  // Measure where each stage panel sits so each one can stop in the middle
+  // of the screen, between the faint stages before and after it
   useEffect(() => {
     const measure = () => {
       const track = trackRef.current;
       if (!track) return;
       const panels = [...track.children];
-      // measure from the viewport box: the track itself is moved sideways
-      const left = track.parentElement.getBoundingClientRect().left;
-      // every stage stops at the same place, the left edge (only the
-      // current one is visible, so nothing waits beside it)
-      offsets.current = panels.map((p) => p.offsetLeft);
+      const width = track.parentElement.clientWidth;
+      // the first and last stages have nothing on one side, so they keep
+      // their outer edge on the page margin instead of leaving that side empty
+      const first = panels[0];
+      const last = panels[panels.length - 1];
+      const min = first.offsetLeft;
+      const max = last.offsetLeft + last.offsetWidth - width;
+      offsets.current = panels.map((p) => Math.min(max, Math.max(min, p.offsetLeft + p.offsetWidth / 2 - width / 2)));
       version.set(version.get() + 1);
     };
     measure();
@@ -174,7 +159,14 @@ function ProcessTimeline() {
         <div className="process__viewport">
           <motion.ol className="process__track" ref={trackRef} style={{ transform }}>
             {logoDesign.stages.map((s, i) => (
-              <li key={s.title} className="stage" data-active={i === active} data-kind={STAGE_VISUALS[i].kind}>
+              <li
+                key={s.title}
+                className="stage"
+                data-active={i === active}
+                data-prev={i === active - 1}
+                data-next={i === active + 1}
+                data-kind={STAGE_VISUALS[i].kind}
+              >
                 <StageCopy index={i} />
                 <div className="stage__visual">
                   <StageVisual index={i} />
@@ -214,7 +206,7 @@ function ProcessStack() {
     <ol className="process-stack">
       {logoDesign.stages.map((s, i) => (
         // each stage is its own stop (the same ids as the timeline's markers),
-        // so with reduced motion the deck keeps all 30 stops
+        // so with reduced motion the deck keeps every stop
         <li
           key={s.title}
           id={`ct1-stage-${i + 1}`}

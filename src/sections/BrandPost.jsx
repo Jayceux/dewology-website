@@ -109,7 +109,7 @@ export default function BrandPost() {
 
             <div className="ct2__phone-col">
               <div className="ct2__zoom" ref={zoomRef}>
-                <Phone captionRef={captionRef} />
+                <Phone captionRef={captionRef} revealRef={wide ? scrollRef : null} />
               </div>
               <p className="ct2__hint">{mouse ? brandPost.hint : brandPost.hintTouch}</p>
             </div>
@@ -127,12 +127,12 @@ export default function BrandPost() {
 
 // ── Phone with the post ──────────────────────────────────────
 
-function Phone({ captionRef }) {
+function Phone({ captionRef, revealRef }) {
   return (
     <div className="phone">
       <div className="phone__screen">
         <StatusBar />
-        <Post captionRef={captionRef} />
+        <Post captionRef={captionRef} revealRef={revealRef} />
       </div>
     </div>
   );
@@ -185,7 +185,7 @@ const Icon = {
   ),
 };
 
-function Post({ captionRef }) {
+function Post({ captionRef, revealRef }) {
   const reduce = useReducedMotion();
   const [liked, setLiked] = useState(false);
   const [bursts, setBursts] = useState([]); // big hearts on the photo
@@ -281,7 +281,7 @@ function Post({ captionRef }) {
         <AnimatedCount value={count} /> likes
       </p>
 
-      <Caption outerRef={captionRef} />
+      <Caption outerRef={captionRef} revealRef={revealRef} />
     </article>
   );
 }
@@ -308,12 +308,20 @@ function AnimatedCount({ value }) {
 }
 
 // Caption lines brighten one by one as the post scrolls into view.
-function Caption({ outerRef }) {
+//   revealRef: on laptop and TV, the pinned frame. The lines are timed from
+//   it, so every one is fully bright the moment the frame lands on its stop
+//   (the phone is scaled to fit the screen, which would throw off a timing
+//   taken from the caption's own place on the page)
+function Caption({ outerRef, revealRef }) {
   const ref = useRef(null);
   const reduce = useReducedMotion();
   const lines = brandPost.caption.split('\n');
-  // Fully revealed by the time the caption's last line is on screen
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 1', 'end 0.96'] });
+  const { scrollYProgress } = useScroll(
+    revealRef
+      ? { target: revealRef, offset: ['start 1', 'start 0'] }
+      : // phones: fully revealed by the time the caption's last line is on screen
+        { target: ref, offset: ['start 1', 'end 0.96'] },
+  );
 
   return (
     <div

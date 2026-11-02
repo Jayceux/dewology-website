@@ -413,7 +413,24 @@
     zoom: var(--phone-fit, 1);
   }
 
+  /* A wide phone: its caption wraps into fewer lines, so once the whole
+     phone is fitted to the screen it shows bigger than a narrow one
+     (about 350px wide on a 1536 × 864 laptop, 430px on the TV) */
+  .phone {
+    --phone-w: 440px;
+  }
+
   .ct2__details {
     zoom: var(--details-fit, 1);
+  }
+
+  /* the two colours run the full width of the column, ending on the same
+     edge as the type rows below; wide bars keep them no taller than before */
+  .ct2__details .swatches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ct2__details .swatch__chip {
+    aspect-ratio: 3 / 1;
   }
 }

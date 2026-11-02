@@ -11,7 +11,7 @@
 }
 
 /* ── The finale: the logo standing in the water, its reflection, the
-   thanks and the four names, centred ─────────────────────────── */
+   tagline and the class credit, centred ──────────────────────── */
 .finale {
   display: flex;
   flex-direction: column;
@@ -51,32 +51,22 @@
   transform: translateY(0) scaleY(-1);
 }
 
-.finale__thanks {
+/* The tagline the presentation opened on, one sentence to a line */
+.finale__tagline {
   margin-top: clamp(16px, 3vh, 36px);
   font-family: var(--font-display);
   font-size: clamp(2.25rem, min(4.4vw, 7.4vh), 5rem);
   font-weight: 500;
-  line-height: 1.05;
+  line-height: 1.1;
   color: var(--rose);
 }
 
-/* The four names, large enough to read from the back of the room */
-.finale__names {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  justify-content: center;
-  gap: clamp(8px, 1.4vh, 14px) clamp(40px, 5vw, 96px);
-  margin: clamp(20px, 3.4vh, 40px) 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: clamp(1.125rem, min(1.6vw, 2.8vh), 1.875rem);
-  font-weight: 500;
-  line-height: 1.35;
-  color: var(--berry);
+.finale__line {
+  display: block;
 }
 
 .finale__group {
-  margin-top: clamp(14px, 2.4vh, 26px);
+  margin-top: clamp(20px, 3.4vh, 40px);
   font-size: var(--text-lead);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -89,20 +79,15 @@
    comes up out of the water as its reflection opens beneath it, then the
    words settle in. */
 .finale__logo,
-.finale__thanks,
-.finale__names li,
+.finale__line,
 .finale__group {
   transition:
     transform 1300ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 700ms var(--ease-out);
 }
 
-.finale__thanks {
-  transition-delay: 800ms;
-}
-
-.finale__names li {
-  transition-delay: calc(1050ms + var(--i) * 90ms);
+.finale__line {
+  transition-delay: calc(800ms + var(--i) * 220ms);
 }
 
 .finale__group {
@@ -126,23 +111,28 @@
     transform: translateY(-102%) scaleY(-1);
   }
 
-  html[data-stage='on'] .finale:not([data-reveal='in']) :is(.finale__thanks, .finale__names li, .finale__group) {
+  html[data-stage='on'] .finale:not([data-reveal='in']) :is(.finale__line, .finale__group) {
     opacity: 0;
     transform: translateY(12px);
   }
 }
 
-/* ── The credits bar ─────────────────────────────────────── */
+/* ── The signature line ──────────────────────────────────── */
+/* One short centred line at the foot of the closing frame: the year and
+   the Instagram handle (the menu at the top carries the logo and links) */
 .footer__meta {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
-  margin-top: clamp(48px, 10vh, 120px);
-  padding-top: 24px;
-  border-top: 1px solid rgba(122, 36, 54, 0.2);
+  gap: 4px 14px;
+  margin: clamp(48px, 10vh, 120px) 0 0;
   color: var(--muted);
   font-size: var(--text-small);
+}
+
+.footer__dot {
+  opacity: 0.6;
 }
 
 .footer__meta a {
@@ -157,7 +147,7 @@
 
 /* Laptop and TV: the footer is the closing frame. It fills the screen, so
    the last → lands on it cleanly, with the finale in the middle and the
-   credits bar at the bottom. */
+   signature line at the bottom. */
 @media (min-width: 901px) {
   .footer {
     min-height: 100svh;
@@ -177,12 +167,6 @@
 
   .footer__meta {
     margin-top: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .finale__names {
-    grid-template-columns: 1fr;
   }
 }
 
