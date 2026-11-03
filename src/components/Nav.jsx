@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { nav, brand } from '../content';
 import { useSite } from '../lib/site';
-import Wordmark from './Wordmark';
 import './Nav.css';
 
 export default function Nav() {
@@ -31,7 +30,10 @@ export default function Nav() {
   return (
     <header className="nav" data-open={open}>
       <a href="#home" className="nav__brand" onClick={(e) => go(e, 'home')} aria-label={`${brand.name}, back to top`}>
-        <Wordmark className="nav__logo" label={null} />
+        {/* the brand's handle, set as it is on the post and the poster */}
+        <span className="nav__handle" aria-hidden="true">
+          {brand.handle}
+        </span>
       </a>
 
       <button
