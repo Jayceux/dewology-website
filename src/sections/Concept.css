@@ -197,6 +197,16 @@
   opacity: 1;
 }
 
+/* The photos are cut out (the drop's pink shows behind each one), so the
+   initials step aside once the photo is in */
+.founder__initials {
+  transition: opacity 300ms ease;
+}
+
+.founder__initials[aria-hidden='true'] {
+  opacity: 0;
+}
+
 /* One gold sheen sweeps across on hover (mouse only). On leave it fades out
    first and only then jumps back, so it never snaps mid-sweep. */
 .founder__sheen {

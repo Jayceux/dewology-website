@@ -36,7 +36,7 @@
   --font-body: 'Montserrat', system-ui, sans-serif;
   --font-ct2-headline: 'Poppins', system-ui, sans-serif;
   --font-ct2-accent: 'Cormorant Garamond', Georgia, serif;
-  --font-ct3: 'Tinos', 'Times New Roman', serif;
+  --font-ct3: 'DM Serif Text', Georgia, serif;
 
   /* Type scale (sized up slightly so it reads on a projector) */
   --text-hero: clamp(2.125rem, 6.1vw, 6rem);

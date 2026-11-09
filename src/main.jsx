@@ -11,9 +11,8 @@ import '@fontsource/montserrat/600.css';
 import '@fontsource/poppins/600.css';
 import '@fontsource/cormorant-garamond/400-italic.css';
 import '@fontsource/cormorant-garamond/500-italic.css';
-import '@fontsource/tinos/400.css';
-import '@fontsource/tinos/400-italic.css';
-import '@fontsource/tinos/700.css';
+import '@fontsource/cormorant-garamond/700-italic.css';
+import '@fontsource/dm-serif-text/400.css';
 import 'lenis/dist/lenis.css';
 
 import './styles/tokens.css';

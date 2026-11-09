@@ -1,5 +1,5 @@
 /* CT#3 uses its own monochromatic pink palette (#F3B6BE, #E98D97, #CF5B6E)
-   and fonts (Tinos, Montserrat). Small UI text uses a deeper pink so it
+   and fonts (DM Serif Text, Cormorant Garamond Italic, Montserrat). Small UI text uses a deeper pink so it
    stays readable on a projector; the swatches show the exact codes. */
 
 .section.ct3 {
@@ -19,9 +19,8 @@
 .ct3__poster {
   margin: 0;
   height: min(78vh, 840px);
-  /* the artwork ends at about 83% of the image height; the plain band
-     below it is cropped off (1900 of 2160 px kept) */
-  aspect-ratio: 1220 / 1900;
+  /* the poster is a 4:5 Instagram post (1098 × 1350) */
+  aspect-ratio: 1098 / 1350;
   border-radius: 6px;
   /* shadow appears as the drop finishes opening */
   box-shadow: 0 40px 80px -30px rgba(140, 40, 60, 0), 0 12px 24px -12px rgba(140, 40, 60, 0);
@@ -133,9 +132,26 @@
 }
 
 /* Laptop and TV: the poster is never taller than the space between the
-   menu and the stop counter's strip */
+   menu and the stop counter's strip, and leaves the palette and type a fair
+   share of the width (it is a wide 4:5 post) */
 @media (min-width: 901px) {
   .ct3__poster {
-    height: min(78vh, 840px, calc(100svh - var(--nav-height) - var(--counter-band) - 32px));
+    height: min(72vh, 780px, calc(100svh - var(--nav-height) - var(--counter-band) - 32px));
+  }
+
+  /* the column steps down as a whole when it is taller than the screen
+     allows (the factor is measured in Poster.jsx) */
+  .ct3__details {
+    zoom: var(--details-fit, 1);
+  }
+
+  /* the three colours run the full width of the column, ending on the same
+     edge as the type rows below, as wide bars (as on the CT#2 frame) */
+  .ct3__details .swatches {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ct3__details .swatch__chip {
+    aspect-ratio: 3 / 1;
   }
 }

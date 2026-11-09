@@ -78,17 +78,18 @@ export const vision = {
   text: 'To become the go-to essentials brand for skincare beginners.',
 };
 
-// Photos go in public/assets/owners/ with these exact file names.
+// Photos go in public/assets/owners/ with these exact file names (800 x 1000,
+// transparent background: see the README there).
 // If a photo is missing, the site shows the initials instead.
 export const owners = {
   // what the corner counter says on this stop (the rubric's word: owners)
   stopLabel: 'Business concept: Owners',
   heading: 'The founders',
   people: [
-    { name: 'Azhlee Kyree S. Badua', initials: 'AB', photo: '/assets/owners/azhlee-badua.jpg' },
-    { name: 'Ross Christian F. Gundran', initials: 'RG', photo: '/assets/owners/ross-gundran.jpg' },
-    { name: 'Jc O. Luy', initials: 'JL', photo: '/assets/owners/jc-luy.jpg' },
-    { name: 'Michaella Nicole A. Ramos', initials: 'MR', photo: '/assets/owners/michaella-ramos.jpg' },
+    { name: 'Azhlee Kyree S. Badua', initials: 'AB', photo: '/assets/owners/azhlee-badua.webp' },
+    { name: 'Ross Christian F. Gundran', initials: 'RG', photo: '/assets/owners/ross-gundran.webp' },
+    { name: 'Jc O. Luy', initials: 'JL', photo: '/assets/owners/jc-luy.webp' },
+    { name: 'Michaella Nicole A. Ramos', initials: 'MR', photo: '/assets/owners/michaella-ramos.webp' },
   ],
 };
 
@@ -212,8 +213,8 @@ Dewology—Glowy Skin, Made Natural. 🌿💧
 
 export const poster = {
   label: 'CT#3 Promotional poster',
-  image: '/assets/poster/ct3-poster.png',
-  imageLarge: '/assets/poster/ct3-poster@2x.png',
+  image: '/assets/poster/ct3-poster.webp',
+  imageLarge: '/assets/poster/ct3-poster@2x.webp',
   alt: 'Dewology 10.10 Beauty Sale poster: up to 40% off, dewology.ph',
   palette: [
     { name: 'Light pink', hex: '#F3B6BE' },
@@ -221,7 +222,8 @@ export const poster = {
     { name: 'Deep pink', hex: '#CF5B6E' },
   ],
   typography: [
-    { name: 'Tinos', role: 'Headline and offer', sample: '10.10 Beauty Sale, up to 40% off', family: 'Tinos', weight: 700 },
+    { name: 'DM Serif Text', role: 'Headline', sample: '10.10 Beauty Sale', family: 'DM Serif Text' },
+    { name: 'Cormorant Garamond Italic', role: 'Offer', sample: 'up to 40% off', family: 'Cormorant Garamond', weight: 700, italic: true },
     { name: 'Montserrat', role: 'Brand handle', sample: 'dewology.ph', family: 'Montserrat' },
   ],
 };
