@@ -314,10 +314,13 @@ const tint = (r, g, b) => new THREE.Color(r, g, b);
 
 const MAT = {
   // the filled part of a bottle: glass and liquid as one tinted volume
-  filled: ({ att, dist, thickness, color = 0xffffff, ior = 1.45, reflColor }) =>
+  //   (its vertex colours deepen the liquid towards the bottom; glass: the
+  //   dark edges and the band of focused light, see stage/glassLook.js)
+  filled: ({ att, dist, thickness, color = 0xffffff, ior = 1.45, reflColor, glass }) =>
     Object.assign(
       new THREE.MeshPhysicalMaterial({
         color,
+        vertexColors: true,
         roughness: 0.035,
         roughnessMap: unevenness(3, 0.6),
         transmission: 1,
@@ -326,11 +329,12 @@ const MAT = {
         attenuationColor: att,
         attenuationDistance: dist,
         specularIntensity: 1,
+        dispersion: 0.1,
       }),
-      { userData: { reflColor } },
+      { userData: { reflColor, glass: { edge: 0.95, edgePow: 2.2, glow: 0.42, ...glass } } },
     ),
   // the clear glass above the liquid line
-  clearGlass: ({ att, dist = 6, thickness = 0.35, reflColor }) =>
+  clearGlass: ({ att, dist = 6, thickness = 0.35, reflColor, glass }) =>
     Object.assign(
       new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
@@ -341,11 +345,12 @@ const MAT = {
         ior: 1.5,
         attenuationColor: att,
         attenuationDistance: dist,
+        dispersion: 0.15,
       }),
-      { userData: { reflColor } },
+      { userData: { reflColor, glass: { edge: 0.8, edgePow: 2.2, ...glass } } },
     ),
   // frosted (sand-blasted) glass or PET: the light passes, blurred
-  frosted: ({ color, att, dist, thickness, roughness = 0.42, ior = 1.48, reflColor }) =>
+  frosted: ({ color, att, dist, thickness, roughness = 0.42, ior = 1.48, reflColor, glass }) =>
     Object.assign(
       new THREE.MeshPhysicalMaterial({
         color,
@@ -360,7 +365,7 @@ const MAT = {
         sheenColor: tint(1, 0.93, 0.94),
         sheenRoughness: 0.6,
       }),
-      { userData: { reflColor } },
+      { userData: { reflColor, glass: { edge: 0.42, edgePow: 2.2, glow: 0.12, ...glass } } },
     ),
   // things inside the glass, kept opaque so the glass can show them
   inside: (color, roughness = 0.1, extra = {}) =>
@@ -388,9 +393,9 @@ const MAT = {
     }),
   brushedGold: () =>
     new THREE.MeshPhysicalMaterial({
-      color: tint(0.8, 0.57, 0.29),
+      color: tint(0.86, 0.63, 0.33),
       metalness: 1,
-      roughness: 0.32,
+      roughness: 0.22,
       roughnessMap: unevenness(8, 0.8),
       anisotropy: 0.75,
       clearcoat: 0.2,
@@ -404,8 +409,21 @@ const MAT = {
 // the glass
 function filledBottle(g, shape, fill, look) {
   const pts = profilePoints(shape);
-  const [lo, hi] = splitAt(pts, fill);
-  g.add(lathe(lo, MAT.filled(look.filled)));
+  // a thick clear glass base, then the liquid, then the clear shoulder
+  const [below, hi] = splitAt(pts, fill);
+  const [base, lo] = splitAt(below, look.base);
+  g.add(lathe(base, MAT.clearGlass({ ...look.glass, thickness: 1.2, glass: { edge: 0.5, glow: 0.18, glowCol: [1, 0.86, 0.88] } })));
+  const body = lathe(lo, MAT.filled(look.filled));
+  // the liquid deepens towards the bottom, away from the light
+  const bp = body.geometry.attributes.position;
+  const shade = [];
+  for (let i = 0; i < bp.count; i++) {
+    const t = THREE.MathUtils.smoothstep(bp.getY(i), look.base, fill);
+    const v = 0.8 + 0.2 * t;
+    shade.push(v, v, v);
+  }
+  body.geometry.setAttribute('color', new THREE.Float32BufferAttribute(shade, 3));
+  g.add(body);
   g.add(lathe(hi, MAT.clearGlass(look.glass)));
   const rIn = radiusAt(pts, fill) - look.wall;
   const surface = new THREE.Mesh(new THREE.CircleGeometry(rIn, 96), MAT.inside(look.surface, 0.04, { clearcoat: 1, clearcoatRoughness: 0.02 }));
@@ -457,6 +475,7 @@ async function cleanser(p) {
 async function toner(p) {
   const g = new THREE.Group();
   filledBottle(g, [[0, 0], [2.8, 0, 0.5], [2.8, 13.4, 1.9], [1.0, 15.2, 0.25], [1.0, 16.0], [0, 16.0]], 11.9, {
+    base: 0.75,
     filled: { att: tint(0.97, 0.56, 0.66), dist: 1.0, thickness: 5.2, color: tint(1, 0.93, 0.95), ior: 1.4, reflColor: '#ef9fae' },
     glass: { att: tint(0.98, 0.86, 0.9), dist: 8, thickness: 0.3, reflColor: '#f6d2d8' },
     wall: 0.22,
@@ -476,6 +495,7 @@ async function serum(p) {
   const g = new THREE.Group();
   // rose glass with the serum inside
   filledBottle(g, [[0, 0], [1.85, 0, 0.4], [1.85, 7.2, 1.2], [0.75, 8.4, 0.15], [0.75, 8.9], [0, 8.9]], 6.1, {
+    base: 0.6,
     filled: { att: tint(0.88, 0.28, 0.42), dist: 0.75, thickness: 3.4, color: tint(1, 0.9, 0.92), ior: 1.47, reflColor: '#d97a90' },
     glass: { att: tint(0.92, 0.55, 0.64), dist: 1.2, thickness: 0.3, reflColor: '#eaa6b4' },
     wall: 0.2,

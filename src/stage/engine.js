@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PIGMENTS, LIGHTS } from './stops';
 import { studioEnvironment } from './studioEnv';
+import { applyGlassLook } from './glassLook';
 
 const MAX_WASHES = 12;
 const MAX_BEADS = 8;
@@ -227,6 +228,11 @@ const fragment = /* glsl */ `
       col += vec3(1.0, 0.97, 0.97) * max(lit, 0.0) * 0.16;
       col *= 1.0 - max(-lit, 0.0) * 0.06;
     }
+    // The copy glass looks through holds light, not display colour: the
+    // glass shades it (exposure 0.82, the Neutral curve) and encodes it for
+    // the screen again, so it is handed over undone, and clear glass then
+    // shows the paper at its true colour instead of a paler, milky one
+    if (uCheap > 0.5) col = (pow(col, vec3(2.2)) + 0.04) / 0.82;
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -489,6 +495,8 @@ export function createStage(container, { reduce = false, products3d = true, mode
         // what sits inside glass (liquid, cream, the dropper) stays opaque,
         // so the glass can show it; it turns see-through only to fade
         o.material.transparent = !o.material.userData.keepOpaque;
+        // glass gets its photographed look: dark edges, focused light
+        applyGlassLook(o.material);
       });
       const group = new THREE.Group();
       group.add(model);

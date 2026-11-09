@@ -14,6 +14,7 @@ import '@fontsource/montserrat/500.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/cinzel/600.css';
 import { studioEnvironment } from '../stage/studioEnv.js';
+import { applyGlassLook } from '../stage/glassLook.js';
 import { PRODUCTS, setLabelWidth } from './products.js';
 
 const LOGO_SRC = '/assets/logo/secondary-logo.svg';
@@ -168,6 +169,7 @@ function castShadows(obj) {
     o.castShadow = solid;
     o.receiveShadow = solid;
     if (o.material.transmission > 0 && Number.isFinite(o.material.attenuationDistance)) o.material.attenuationDistance *= SITE_SCALE;
+    applyGlassLook(o.material); // as on the site
   });
   return obj;
 }
