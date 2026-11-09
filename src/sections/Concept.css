@@ -96,20 +96,23 @@
   align-self: flex-end;
 }
 
+/* "Mission" and "Vision" are graded words: each heads its quote at title
+   size, in the display face, not as a small label */
 .mv__label {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-body);
-  font-size: var(--text-small);
+  gap: 14px;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
   font-weight: 600;
+  line-height: 1.1;
   color: var(--rose);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .mv__drop {
-  width: 10px;
-  height: 15px;
+  width: 0.45em;
+  height: 0.68em;
   color: var(--rose);
 }
 

@@ -118,15 +118,6 @@
   max-width: 44ch;
 }
 
-/* "From draft sketch 1." is a rubric line: its own bold line, not a tail */
-.stage__source {
-  display: block;
-  margin-top: 10px;
-  font-size: var(--text-lead);
-  font-weight: 600;
-  color: var(--rose);
-}
-
 .stage__visual {
   height: var(--visual-h);
   display: flex;
@@ -387,7 +378,7 @@
   top: 0;
   height: 100vh;
   padding-top: calc(var(--nav-height) + 16px);
-  padding-bottom: 24px;
+  padding-bottom: var(--counter-band); /* the figure stays clear of the stop counter */
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
   gap: clamp(32px, 5vw, 80px);
@@ -411,7 +402,7 @@
   aspect-ratio: 640 / 790;
   /* the figures sit straight on the paper */
   /* sized by width so the box keeps the drawing's exact shape (the lens relies on it) */
-  width: min(100%, calc((100vh - var(--nav-height) - 64px) * 640 / 790));
+  width: min(100%, calc((100vh - var(--nav-height) - 16px - var(--counter-band)) * 640 / 790));
   justify-self: center;
 }
 
@@ -690,9 +681,16 @@
     grid-area: heading;
   }
 
+  /* the logo's palette is two golds: two columns of large square cards
+     (not the three-colour grid of CT#2 and CT#3, which left a third of
+     the column empty and the chips small) */
   .ct1-palette > .swatches {
     grid-area: swatches;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ct1-palette .swatch__chip {
+    aspect-ratio: 1 / 1;
   }
 
   .ct1-palette > .specimens {

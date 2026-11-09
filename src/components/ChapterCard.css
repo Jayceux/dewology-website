@@ -17,7 +17,10 @@
   transform: translateY(-52%);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: min(54vh, 29vw);
+  /* grows with the screen only as far as the content column does (it
+     stops at --content-max, from 1536px wide): beyond that a long title
+     ("PROMOTIONAL") would run into it */
+  font-size: min(54vh, 29vw, calc(var(--content-max) * 0.348));
   line-height: 0.8;
   letter-spacing: -0.02em;
   /* a solid numeral that the shared filter turns into one clean 2.5px
@@ -39,7 +42,7 @@
 .chapter__title {
   max-width: 9.5ch;
   margin-bottom: clamp(32px, 6vh, 64px);
-  font-size: clamp(3.25rem, 6.6vw, 8rem);
+  font-size: clamp(3.25rem, min(6.6vw, calc(var(--content-max) * 0.079)), 8rem);
   font-weight: 500;
   line-height: 0.98;
   color: var(--rose);

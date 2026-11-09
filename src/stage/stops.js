@@ -129,7 +129,8 @@ export const STOP_STAGE = {
   'routine-intro': {
     clear: true,
     // the five products stand in a row in the water, which stirs as they arrive
-    water: { anchor: '.routine__lineup', at: [0.5, 0.97], w: 0.46, sq: 0.12, shade: false, glowY: 0.35, glowR: 0.9 },
+    // (its back edge fades softly: a crisp line behind a row reads as a table edge)
+    water: { anchor: '.routine__lineup', at: [0.5, 0.97], w: 0.46, sq: 0.12, shade: false, glowY: 0.35, glowR: 0.9, back: 0.45 },
     // behind the headline only, so the paper around the caps stays pink
     light: [
       { anchor: '.routine__heading', at: [0.4, 0.5], r: 0.36, tint: 'soft' },

@@ -146,7 +146,7 @@
 /* TV tier: menu readable from across the room */
 @media (min-width: 1600px) {
   .nav__links a {
-    font-size: 1.1875rem;
+    font-size: var(--text-small); /* 20px, the TV floor */
   }
 
   .nav__links a[aria-current='true'] {

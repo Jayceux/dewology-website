@@ -307,8 +307,10 @@ async function kitParts() {
   const BD = 10.5;
   const BH = 7.6;
   const T = 0.35;
-  const outside = board(0xdcb0a4);
-  const inside = board(0xbd8b80);
+  // a dusty rose board, in the bottles' pink family (it read as peach
+  // under the warm key when it was 0xdcb0a4)
+  const outside = board(0xd9a3ae);
+  const inside = board(0xb9808c);
   const mk = (w, h, d, mat, x, y, z) => {
     const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 2, 0.06), mat);
     m.position.set(x, y, z);
@@ -463,6 +465,11 @@ async function exportAllGLB() {
 
 window.renderAll = renderAll;
 window.renderProducts = renderProducts;
+window.renderKit = async () => {
+  await document.fonts.load('600 40px Montserrat');
+  await document.fonts.load('500 40px Montserrat');
+  return renderKit();
+};
 window.exportGLB = exportGLB;
 window.exportAllGLB = exportAllGLB;
 document.querySelector('#render').addEventListener('click', renderAll);

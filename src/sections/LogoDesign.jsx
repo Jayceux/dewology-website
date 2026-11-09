@@ -42,9 +42,9 @@ function OutlinedDrop() {
 
 const STAGE_VISUALS = [
   { kind: 'drop' },
-  { kind: 'crops', ids: ['redBlackDrop', 'pinkDrop', 'goldDrop'], source: 'Draft sketch 1' },
-  { kind: 'crops', ids: ['wordmarkThin', 'wordmarkBold', 'wordmarkSerif'], source: 'Draft sketch 1' },
-  { kind: 'crops', ids: ['facePurple', 'facePink', 'faceRed', 'faceGreen'], source: 'Draft sketch 2' },
+  { kind: 'crops', ids: ['redBlackDrop', 'pinkDrop', 'goldDrop'] },
+  { kind: 'crops', ids: ['wordmarkThin', 'wordmarkBold', 'wordmarkSerif'] },
+  { kind: 'crops', ids: ['facePurple', 'facePink', 'faceRed', 'faceGreen'] },
 ];
 
 function StageVisual({ index }) {
@@ -69,7 +69,6 @@ function StageCopy({ index }) {
         <h3 className="stage__title">{s.title}</h3>
         <p className="stage__text">
           {s.text}
-          {v.source && <span className="stage__source"> From {v.source.toLowerCase()}.</span>}
         </p>
       </div>
     </div>
@@ -189,7 +188,7 @@ function ProcessTimeline() {
                   onClick={() => scrollTo(`#ct1-stage-${i + 1}`)}
                 >
                   <span className="process__dot" aria-hidden="true" />
-                  {s.title}
+                  {s.rail ?? s.title}
                 </button>
               </li>
             ))}
@@ -344,7 +343,9 @@ function ClosureOver() {
         <text x="362" y="612" {...LABEL}>{logoDesign.diagram.face}</text>
         <line x1="22" y1="560" x2="-58" y2="600" stroke="#6D1D28" strokeOpacity="0.7" strokeWidth="2.5" />
         <text x="-140" y="630" {...LABEL}>{logoDesign.diagram.hair}</text>
-        <text x="362" y="720" {...LABEL} fill="#7E5733">
+        {/* in the labels' rose, like the dashed outline it names: gold
+            belongs to the logo alone */}
+        <text x="362" y="720" {...LABEL}>
           {logoDesign.diagram.whole}
         </text>
       </g>

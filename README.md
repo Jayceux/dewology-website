@@ -3,7 +3,7 @@
 Brand portfolio website for **Dewology**, a skincare starter brand made by students, for students.
 Final requirement of **BSIT 4D, Group 2**.
 
-> Start smart. Glow naturally.
+> Glowy skin made natural
 
 **Live site: https://dewology-website.vercel.app**
 
@@ -65,4 +65,4 @@ Built with [Vite](https://vite.dev), [React](https://react.dev), [Motion](https:
 
 Azhlee Kyree S. Badua · Ross Christian F. Gundran · Jc O. Luy · Michaella Nicole A. Ramos
 
-Instagram: [@jayceux](https://www.instagram.com/jayceux/)
+Instagram: [@dewology.ph](https://www.instagram.com/dewology.ph/)

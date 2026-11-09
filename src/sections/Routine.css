@@ -50,7 +50,8 @@
     height: var(--h);
     aspect-ratio: 560 / 1040;
     margin-inline: calc(var(--h) * 560 / 1040 * -0.08);
-    overflow: hidden;
+    /* not clipped: each picture's floor shadow is wider than its slot, and
+       a clip cut it into a straight-edged tile */
     opacity: 0;
     transform: translateY(24px);
     transition:
@@ -122,7 +123,9 @@
   transform: translateY(-50%);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: min(48vh, 26vw);
+  /* sized to the stage (44% of its height), so the widest numeral ("4")
+     ends well clear of the widest product (the jar), which stands centred */
+  font-size: min(calc(min(100vh - var(--nav-height) - 48px, 760px) * 0.44), 21vw);
   line-height: 1;
   /* outlined by the shared filter, as one clean shape (see DropClip.jsx) */
   color: var(--rose);
@@ -162,6 +165,12 @@
   color: var(--muted); /* resting steps: quiet rose, still 5.9:1 */
   text-align: left;
   transition: opacity 200ms ease;
+  /* the number is a touch larger than its name, resting or current */
+  --num: 1.75rem;
+}
+
+.step[aria-current='step'] {
+  --num: clamp(1.75rem, 2.4vw, 2.75rem);
 }
 
 /* The current step gets the same small gold drop as the menu's current link */
@@ -169,7 +178,7 @@
   content: '';
   position: absolute;
   left: -32px;
-  top: 32px; /* level with the step number */
+  top: calc(18px + var(--num) * 0.6); /* level with the step number */
   width: 14px;
   height: 14px;
   border-radius: 50% 0 50% 50%;
@@ -208,10 +217,10 @@
 
 .step__num {
   flex-shrink: 0;
-  width: 1.4em;
+  width: 2.45rem; /* one fixed column (1.4 × the resting size): every name lines up, the current one too */
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.75rem;
+  font-size: var(--num);
   line-height: 1;
   color: var(--rose);
 }

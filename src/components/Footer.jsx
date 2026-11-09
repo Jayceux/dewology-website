@@ -22,7 +22,7 @@ export default function Footer() {
           </div>
           <p className="finale__tagline">
             <span className="visually-hidden">{brand.tagline}</span>
-            {brand.tagline.split(/(?<=\.)\s+/).map((line, i) => (
+            {brand.taglineLines.map((line, i) => (
               <span key={line} className="finale__line" style={{ '--i': i }} aria-hidden="true">
                 {line}
               </span>

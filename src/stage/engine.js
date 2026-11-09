@@ -46,6 +46,7 @@ const fragment = /* glsl */ `
   uniform float uLight[MAX]; // 1 = a pool of light rather than a wash of paint
   uniform vec4 uBead[${MAX_BEADS}];  // dew beads: where (xy), radius (z), how present (w)
   uniform float uWaterShade; // the contact shade of something standing in the water
+  uniform float uWaterBack;  // how softly the back edge fades (crisp for one product, soft for a row)
   uniform vec4 uWater;     // the water sheet: centre (xy), half width and half depth (zw)
   uniform float uWaterAmt;
   uniform float uWaterSeed;
@@ -169,7 +170,7 @@ const fragment = /* glsl */ `
       else d.y *= 1.0 + 0.35 * (1.0 - min(d.x * d.x, 1.0)); // a flatter back edge, lying low
       float r = length(d) + (fbm(d * vec2(1.4, 2.2) + uWaterSeed) - 0.5) * 0.1;
       float far = smoothstep(-1.0, 1.0, d.y);
-      float soft = mix(0.03, 0.5, 1.0 - far);
+      float soft = mix(uWaterBack, 0.5, 1.0 - far);
       float inWater = 1.0 - smoothstep(1.0 - soft, 1.0, r);
       vec3 water = col * vec3(0.962, 0.93, 0.945);
       // (only a little: a white cap standing in the water must keep its edge)
@@ -181,6 +182,7 @@ const fragment = /* glsl */ `
       // product, in broken pieces, fading away towards the sides
       float rim = smoothstep(0.9, 0.98, r) * (1.0 - smoothstep(0.98, 1.0, r));
       rim *= smoothstep(0.85, 0.15, abs(d.x)) * smoothstep(0.3, 0.75, noise(vec2(d.x * 7.0 + uWaterSeed, 0.5)));
+      rim *= 1.0 - smoothstep(0.03, 0.25, uWaterBack); // a soft back edge has no bright meniscus
       water += rim * 0.08 * far;
       col = mix(col, water, inWater * uWaterAmt);
       // a soft contact shade where the product stands
@@ -318,6 +320,7 @@ export function createStage(container, { reduce = false, products3d = true, mode
     uLight: { value: new Array(MAX_WASHES).fill(0) },
     uBead: { value: Array.from({ length: MAX_BEADS }, () => new THREE.Vector4(0, 0, 0.01, 0)) },
     uWaterShade: { value: 1 },
+    uWaterBack: { value: 0.03 },
     uRipS: { value: [0.03, 0.03] },
   };
   const paper = new THREE.Mesh(
@@ -466,6 +469,7 @@ export function createStage(container, { reduce = false, products3d = true, mode
   const loader = new GLTFLoader();
   const productModels = {};
   let productWanted = null; // { id, el, base, height }
+  let counterEl = null; // the corner counter, which reflections stay clear of
   // where the dewdrop reveals the product (the opening), it waits under the
   // water until the drop lands, then rises out of the rings
   let riseNext = false;
@@ -733,6 +737,7 @@ export function createStage(container, { reduce = false, products3d = true, mode
       // the water is still empty, waiting for the drop to bring the product
       const standing = productWanted ? (productShown && !productShown.hold ? Math.min(1, productShown.show) : 0) : 1;
       u.uWaterShade.value = (water.spec.shade === false ? 0 : 1) * standing;
+      u.uWaterBack.value = water.spec.back ?? 0.03;
       // the light behind sits low, behind the bodies and the water, never
       // behind the caps (white on near-white would vanish)
       const [gx, gy] = toP(wb.x, wb.y - (water.spec.glowY ?? 0.55) * wb.W);
@@ -831,6 +836,7 @@ export function createStage(container, { reduce = false, products3d = true, mode
         ? { id: wantId, group: m.group, refl: m.refl, ru: m.ru, clip: m.clip, show: 0, spec: productWanted, t0: clock, hold: riseNext }
         : null;
     }
+    if (!counterEl?.isConnected) counterEl = document.querySelector('.stop-counter');
     const place = (item) => {
       const el = document.querySelector(item.spec.anchor);
       const p = anchorPoint(el, item.spec.base || [0.5, 0.92]);
@@ -844,9 +850,10 @@ export function createStage(container, { reduce = false, products3d = true, mode
       const age = clock - item.t0;
       const lift = reduce || item.rise ? 0 : worldH * 0.06 * (1 - Math.min(1, age / 0.55)) ** 3;
       const sink = item.rise ? worldH * 1.04 * (1 - Math.min(1, age / 1.3)) ** 3 : 0;
-      // a slow sway shows it is real; it sways about the front, so the
-      // label faces the room
-      const turn = -0.06 + Math.sin(clock * 0.4) * 0.26;
+      // a slow, narrow sway shows it is real. It starts with the label
+      // facing the room and never turns it away (within about 9° of the
+      // front); with reduced motion the product stands still
+      const turn = -0.05 + (reduce ? 0 : Math.sin(age * 0.4) * 0.1);
       item.group.scale.setScalar(scale);
       item.group.position.set(x, y + lift - sink, 0);
       if (item.clip) {
@@ -867,7 +874,14 @@ export function createStage(container, { reduce = false, products3d = true, mode
           item.refl.rotation.y = turn;
           const px = (2 * H0) / vh; // one CSS pixel in world units
           item.ru.uWaterY.value = y;
-          item.ru.uFade.value = wb.D * 2 * px;
+          // it fades with depth, and where the product stands above the
+          // corner counter it is gone by the counter's words (the strip
+          // along the bottom is kept clear, as for the poster)
+          let fade = wb.D * 2;
+          const ctr = counterEl?.isConnected ? counterEl.getBoundingClientRect() : null;
+          const half = p.h * (item.spec.height || 0.8) * 0.3;
+          if (ctr?.width && p.x + half > ctr.left && p.x - half < ctr.right) fade = Math.min(fade, Math.max(24, ctr.top - p.y));
+          item.ru.uFade.value = fade * px;
           item.ru.uWobA.value = worldH * 0.005;
           item.ru.uWobF.value = (Math.PI * 2 * 4) / worldH;
         }

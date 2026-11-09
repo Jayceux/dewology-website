@@ -51,7 +51,7 @@
   transform: translateY(0) scaleY(-1);
 }
 
-/* The tagline the presentation opened on, one sentence to a line */
+/* The tagline the presentation opened on, set as on the opening (a line each) */
 .finale__tagline {
   margin-top: clamp(16px, 3vh, 36px);
   font-family: var(--font-display);

@@ -7,7 +7,9 @@
 
 export const brand = {
   name: 'Dewology',
-  tagline: 'Start smart. Glow naturally.',
+  tagline: 'Glowy skin made natural',
+  // how the tagline is set on the opening and closing frames, a line each
+  taglineLines: ['Glowy skin', 'made natural'],
   handle: 'dewology.ph',
 };
 
@@ -118,12 +120,14 @@ export const starterKit = {
 export const logoDesign = {
   label: 'CT#1 Logo design',
   // the process, one stop each: the drop, then the drafts picked from the
-  // two sketch sheets (the final mark follows as "The final marks")
+  // two sketch sheets (the final mark follows as "The final marks").
+  // title: the stage's heading (it names the sketch, a rubric item);
+  // rail: the short name on the rail under the stages
   stages: [
     { title: 'A single drop', text: 'Where it started: one simple dewdrop.' },
-    { title: 'Color tests', text: 'Red and black, pink, then gold.' },
-    { title: 'Three wordmarks', text: 'Three “DEWOLOGY” type options.' },
-    { title: 'Face profiles', text: 'Purple, pink and black, black and red, green.' },
+    { title: 'Draft sketch 1 · Color tests', rail: 'Color tests', text: 'Red and black, pink, then gold.' },
+    { title: 'Draft sketch 1 · Three wordmarks', rail: 'Three wordmarks', text: 'Three “DEWOLOGY” type options.' },
+    { title: 'Draft sketch 2 · Face profiles', rail: 'Face profiles', text: 'Purple, pink and black, black and red, green.' },
   ],
   marksHeading: 'The final marks',
   marksText: 'A dewdrop and a woman’s profile in one gold gradient.',
@@ -237,7 +241,7 @@ export const footer = {
   group: 'BSIT 4D · Group 2',
   // the small line under the credits bar
   copyright: '© 2026 Dewology',
-  instagram: { label: '@jayceux', url: 'https://www.instagram.com/jayceux/' },
+  instagram: { label: '@dewology.ph', url: 'https://www.instagram.com/dewology.ph/' },
   // Read aloud after the handle (screen readers)
   instagramNote: ' on Instagram (opens in a new tab)',
 };

@@ -40,7 +40,7 @@ export default function Hero() {
   const { scrollTo } = useSite();
   const [scope, animate] = useAnimate();
   const [playing, setPlaying] = useState(() => document.documentElement.dataset.intro === 'play');
-  const lines = brand.tagline.split(/(?<=\.)\s+/);
+  const lines = brand.taglineLines;
 
   useEffect(() => {
     if (document.documentElement.dataset.intro !== 'play') return undefined;
