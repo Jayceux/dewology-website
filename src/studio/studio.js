@@ -1,22 +1,23 @@
 // ─────────────────────────────────────────────────────────────
 //  DEWOLOGY PRODUCT STUDIO (dev only)
-//  Builds the five products and the Starter Kit in 3D, lights them
-//  like a studio product shot, and saves transparent WebP images to
-//  public/assets/products/. Open http://localhost:5173/studio.html
-//  and press "Render and save all" to re-render after changes.
-//  Units are centimetres.
+//  Builds the five products (products.js) and the Starter Kit in 3D, lit
+//  like a product photograph (the same light as the site: studioEnv.js),
+//  and saves into public/assets/products/:
+//   - the live 3D models, <id>.glb:            exportAllGLB() / exportGLB('serum')
+//   - the pictures (lineup, Starter Kit and
+//     the photo fallbacks), <id>.webp, kit-*:  "Render and save all" / renderAll()
+//  Open http://localhost:5173/studio.html. Units are centimetres.
 // ─────────────────────────────────────────────────────────────
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import '@fontsource/montserrat/500.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/cinzel/600.css';
+import { studioEnvironment } from '../stage/studioEnv.js';
+import { PRODUCTS, setLabelWidth } from './products.js';
 
 const LOGO_SRC = '/assets/logo/secondary-logo.svg';
-const MARK_SRC = '/assets/logo/primary-logo-mark.svg';
-const NAME_INK = '#7a2436'; // deep rose text on the pink glass
-const TUBE_PINK = '#eba2ac'; // soft-touch tube plastic
+const NAME_INK = '#7a2436'; // deep rose print
 
 // ── Renderer, scene, light ───────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -32,86 +33,26 @@ renderer.shadowMap.type = THREE.VSMShadowMap;
 function makeScene() {
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.9;
-
-  // Key light high and slightly in front, so shadows fall short and behind
-  const key = new THREE.DirectionalLight(0xfff1e0, 2.3);
+  scene.environment = pmrem.fromScene(studioEnvironment(), 0.02).texture;
+  pmrem.dispose();
+  scene.environmentIntensity = 1.0;
+  // the key light, high and slightly in front, so shadows fall short and behind
+  const key = new THREE.DirectionalLight(0xfff1e0, 1.3);
   key.position.set(-9, 44, 16);
   key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
-  key.shadow.radius = 10;
-  key.shadow.blurSamples = 20;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.radius = 12;
+  key.shadow.blurSamples = 24;
   key.shadow.bias = -0.0005;
   Object.assign(key.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 140 });
   scene.add(key);
-
-  const rim = new THREE.DirectionalLight(0xffe6c4, 2.2);
-  rim.position.set(24, 18, -22);
-  scene.add(rim);
-
-  const fill = new THREE.HemisphereLight(0xfff4ec, 0x3a2418, 0.5);
-  scene.add(fill);
-
+  scene.add(new THREE.HemisphereLight(0xfff4ec, 0x3a2418, 0.2));
   return scene;
 }
 
-// ── Materials ────────────────────────────────────────────────
-const MAT = {
-  glass: () =>
-    new THREE.MeshPhysicalMaterial({
-      color: 0xeba2ac,
-      roughness: 0.3,
-      clearcoat: 1,
-      clearcoatRoughness: 0.06,
-      sheen: 0.5,
-      sheenColor: new THREE.Color(0xffe2e7),
-      sheenRoughness: 0.45,
-    }),
-  white: () => new THREE.MeshPhysicalMaterial({ color: 0xf7f2ef, roughness: 0.26, clearcoat: 0.8, clearcoatRoughness: 0.12 }),
-  rubber: () => new THREE.MeshPhysicalMaterial({ color: 0xfaf4f1, roughness: 0.55, sheen: 0.3 }),
-  gold: () => new THREE.MeshStandardMaterial({ color: 0xd9ae68, metalness: 1, roughness: 0.22 }),
-  board: (color) => new THREE.MeshPhysicalMaterial({ color, roughness: 0.78, sheen: 0.25, sheenColor: new THREE.Color(0xffffff) }),
-};
+// ── The Starter Kit box: board and its printed artwork ───────
+const board = (color) => new THREE.MeshPhysicalMaterial({ color, roughness: 0.78, sheen: 0.25, sheenColor: new THREE.Color(0xffffff) });
 
-function enableShadows(obj) {
-  obj.traverse((o) => {
-    if (o.isMesh) o.castShadow = true;
-  });
-  return obj;
-}
-
-// ── Shape helpers ────────────────────────────────────────────
-function towards([x, y], [qx, qy], d) {
-  const len = Math.hypot(qx - x, qy - y);
-  const k = Math.min(d, len / 2) / len;
-  return [x + (qx - x) * k, y + (qy - y) * k];
-}
-
-// Profile for a lathe: [[radius, height, cornerRounding], ...] from the
-// bottom centre to the top centre.
-function profile(pts) {
-  const path = new THREE.Path();
-  path.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) {
-    const [r, y, f = 0] = pts[i];
-    if (f > 0 && i < pts.length - 1) {
-      const a = towards([r, y], pts[i - 1], f);
-      const b = towards([r, y], pts[i + 1], f);
-      path.lineTo(a[0], a[1]);
-      path.quadraticCurveTo(r, y, b[0], b[1]);
-    } else {
-      path.lineTo(r, y);
-    }
-  }
-  return path.getPoints(16).map((p) => new THREE.Vector2(Math.max(0, p.x), p.y));
-}
-
-function lathe(pts, material) {
-  return new THREE.Mesh(new THREE.LatheGeometry(profile(pts), 128), material);
-}
-
-// ── Labels (canvas textures with the real logo) ──────────────
 const images = {};
 async function loadImage(src) {
   if (images[src]) return images[src];
@@ -133,7 +74,7 @@ function spaced(ctx, text, x, y, spacing) {
   ctx.fillText(text, x, y);
 }
 
-// Draws the label artwork twice: colour (map) and foil mask (metalnessMap).
+// Draws the artwork twice: colour (map) and foil mask (metalnessMap).
 function labelCanvases(w, h, draw) {
   const color = document.createElement('canvas');
   const foil = document.createElement('canvas');
@@ -165,36 +106,6 @@ function drawFoil(c, f, img, x, y, w, h) {
   f.drawImage(tmp, x, y);
 }
 
-async function bottleLabel({ name, step }, widthCm, heightCm) {
-  const logo = await loadImage(LOGO_SRC);
-  const W = 1024;
-  const H = Math.round((W * heightCm) / widthCm);
-  return labelCanvases(W, H, (c, f) => {
-    // Layout block = logo + name + rule + step. Shrink it to fit short labels (jar).
-    const base = W * 0.6;
-    const blockAt = (s) => (base * s * logo.height) / logo.width + W * 0.29 * s;
-    const s = Math.min(1, (H * 0.86) / blockAt(1));
-    const logoW = base * s;
-    const logoH = (logoW * logo.height) / logo.width;
-    const top = H * 0.2 * s + (H - blockAt(s) - H * 0.2 * s) * (s < 1 ? 0.5 : 0);
-    drawFoil(c, f, logo, (W - logoW) / 2, top, logoW, logoH);
-    c.textAlign = 'center';
-    c.textBaseline = 'alphabetic';
-    c.fillStyle = NAME_INK;
-    c.font = `600 ${Math.round(W * 0.056 * s)}px Montserrat`;
-    spaced(c, name.toUpperCase(), W / 2, top + logoH + W * 0.15 * s, W * 0.012 * s);
-    // thin gold rule
-    const ruleY = top + logoH + W * 0.2 * s;
-    c.fillStyle = '#c99b55';
-    c.fillRect(W * 0.42, ruleY, W * 0.16, Math.max(2, W * 0.003));
-    f.fillStyle = '#fff';
-    f.fillRect(W * 0.42, ruleY, W * 0.16, Math.max(2, W * 0.003));
-    c.fillStyle = NAME_INK;
-    c.font = `500 ${Math.round(W * 0.04 * s)}px Montserrat`;
-    spaced(c, `STEP 0${step}`, W / 2, top + logoH + W * 0.27 * s, W * 0.014 * s);
-  });
-}
-
 function labelMaterial({ map, metal }) {
   return new THREE.MeshPhysicalMaterial({
     map,
@@ -207,122 +118,7 @@ function labelMaterial({ map, metal }) {
   });
 }
 
-// A curved label wrapped around the front of a round body
-async function addLabel(group, product, radius, y0, y1, arcDeg) {
-  const arc = THREE.MathUtils.degToRad(arcDeg);
-  const tex = await bottleLabel(product, radius * arc, y1 - y0);
-  const geo = new THREE.CylinderGeometry(radius, radius, y1 - y0, 96, 1, true, -arc / 2, arc);
-  const mesh = new THREE.Mesh(geo, labelMaterial(tex));
-  mesh.position.y = (y0 + y1) / 2;
-  group.add(mesh);
-}
-
-// ── The five products ────────────────────────────────────────
-async function cleanser(p) {
-  const g = new THREE.Group();
-  g.add(lathe([[0, 0], [2.95, 0, 0.45], [2.95, 12.2, 1.7], [1.05, 13.9, 0.3], [1.05, 14.6], [0, 14.6]], MAT.glass()));
-  g.add(lathe([[0, 14.0], [1.32, 14.0, 0.15], [1.32, 15.4, 0.2], [0, 15.4]], MAT.white()));
-  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 1.4, 48), MAT.white());
-  stem.position.y = 16.0;
-  g.add(stem);
-  const head = new THREE.Mesh(new RoundedBoxGeometry(2.1, 1.3, 2.1, 6, 0.4), MAT.white());
-  head.position.y = 17.25;
-  g.add(head);
-  const nozzle = new THREE.Mesh(new RoundedBoxGeometry(2.4, 0.6, 0.7, 6, 0.26), MAT.white());
-  nozzle.position.set(1.7, 17.45, 0);
-  g.add(nozzle);
-  await addLabel(g, p, 2.97, 2.3, 10.6, 128);
-  return g;
-}
-
-async function toner(p) {
-  const g = new THREE.Group();
-  g.add(lathe([[0, 0], [2.8, 0, 0.5], [2.8, 13.4, 1.9], [1.0, 15.2, 0.25], [1.0, 16.0], [0, 16.0]], MAT.glass()));
-  g.add(lathe([[0, 15.5], [1.4, 15.5, 0.15], [1.4, 19.0, 0.5], [0, 19.0]], MAT.white()));
-  await addLabel(g, p, 2.82, 2.0, 11.4, 130);
-  return g;
-}
-
-async function serum(p) {
-  const g = new THREE.Group();
-  g.add(lathe([[0, 0], [1.85, 0, 0.4], [1.85, 7.2, 1.2], [0.75, 8.4, 0.15], [0.75, 8.9], [0, 8.9]], MAT.glass()));
-  g.add(lathe([[0, 8.5], [1.02, 8.5, 0.12], [1.02, 9.9, 0.12], [0, 9.9]], MAT.gold()));
-  // Rounded rubber bulb: a straight sleeve topped by a dome
-  const dome = Array.from({ length: 10 }, (_, i) => {
-    const a = ((i + 1) / 10) * (Math.PI / 2);
-    return [0.88 * Math.cos(a), 11.5 + 0.95 * Math.sin(a)];
-  });
-  g.add(lathe([[0, 9.9], [0.8, 9.9, 0.1], [0.88, 10.3], [0.88, 11.5], ...dome], MAT.rubber()));
-  await addLabel(g, p, 1.87, 1.0, 6.4, 140);
-  return g;
-}
-
-async function moisturizer(p) {
-  const g = new THREE.Group();
-  g.add(lathe([[0, 0], [3.9, 0, 0.7], [4.0, 4.4, 0.3], [3.5, 4.6], [3.5, 5.0], [0, 5.0]], MAT.glass()));
-  g.add(lathe([[0, 4.55], [4.14, 4.55, 0.2], [4.14, 6.9, 0.55], [0, 6.9]], MAT.white()));
-  await addLabel(g, p, 4.02, 0.7, 4.0, 118);
-  return g;
-}
-
-async function sunscreen(p) {
-  const g = new THREE.Group();
-  // Flip cap (the tube stands on it)
-  g.add(lathe([[0, 0], [1.72, 0, 0.35], [1.72, 2.5, 0.25], [1.05, 2.85], [0, 2.85]], MAT.white()));
-
-  // Tube body: a cylinder squeezed flat towards the crimped top
-  const R = 1.85;
-  const L = 13.2;
-  const geo = new THREE.CylinderGeometry(R, R, L, 128, 80, true, Math.PI, Math.PI * 2);
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const y = pos.getY(i);
-    const t = (y + L / 2) / L;
-    const s = THREE.MathUtils.smoothstep(t, 0.38, 1.0);
-    pos.setX(i, pos.getX(i) * (1 + 0.52 * s));
-    pos.setZ(i, pos.getZ(i) * (1 - 0.93 * s));
-  }
-  geo.computeVertexNormals();
-
-  const logo = await loadImage(LOGO_SRC);
-  const W = 1024;
-  const H = Math.round((W * L) / (2 * Math.PI * R));
-  const tex = labelCanvases(W, H, (c, f) => {
-    c.fillStyle = TUBE_PINK;
-    c.fillRect(0, 0, W, H);
-    const lw = W * 0.24;
-    const lh = (lw * logo.height) / logo.width;
-    const top = H * 0.46;
-    drawFoil(c, f, logo, (W - lw) / 2, top, lw, lh);
-    c.textAlign = 'center';
-    c.fillStyle = NAME_INK;
-    c.font = `600 ${Math.round(W * 0.022)}px Montserrat`;
-    spaced(c, p.name.toUpperCase(), W / 2, top + lh + W * 0.05, W * 0.005);
-    c.font = `500 ${Math.round(W * 0.016)}px Montserrat`;
-    spaced(c, `STEP 0${p.step}`, W / 2, top + lh + W * 0.082, W * 0.006);
-  });
-  const tube = new THREE.Mesh(
-    geo,
-    new THREE.MeshPhysicalMaterial({ map: tex.map, metalnessMap: tex.metal, metalness: 1, roughness: 0.36, clearcoat: 0.6, clearcoatRoughness: 0.2, side: THREE.DoubleSide }),
-  );
-  tube.position.y = 2.75 + L / 2;
-  g.add(tube);
-
-  const crimp = new THREE.Mesh(new RoundedBoxGeometry(R * 2 * 1.52 + 0.1, 1.1, 0.34, 4, 0.12), new THREE.MeshPhysicalMaterial({ color: TUBE_PINK, roughness: 0.45, clearcoat: 0.4 }));
-  crimp.position.y = 2.75 + L - 0.35;
-  g.add(crimp);
-  return g;
-}
-
-const PRODUCTS = [
-  { id: 'cleanser', name: 'Gentle Cleanser', step: 1, build: cleanser, width: 6.2 },
-  { id: 'toner', name: 'Balancing Toner', step: 2, build: toner, width: 5.8 },
-  { id: 'serum', name: 'Glow Serum', step: 3, build: serum, width: 3.9 },
-  { id: 'moisturizer', name: 'Barrier Moisturizer', step: 4, build: moisturizer, width: 8.4 },
-  { id: 'sunscreen', name: 'Daily Sunscreen', step: 5, build: sunscreen, width: 5.7 },
-];
-
-// ── Rendering helpers ────────────────────────────────────────
+// ── Ground: shadows, and a soft dark pool right under a product ──
 function shadowCatcher(opacity = 0.18) {
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(76, 76), new THREE.ShadowMaterial({ opacity }));
   plane.rotation.x = -Math.PI / 2;
@@ -330,7 +126,6 @@ function shadowCatcher(opacity = 0.18) {
   return plane;
 }
 
-// Soft dark pool right under a product, so it sits on the ground
 function contactShadow(width, depth, strength = 0.5) {
   const c = document.createElement('canvas');
   c.width = c.height = 256;
@@ -351,19 +146,6 @@ function contactShadow(width, depth, strength = 0.5) {
   return m;
 }
 
-async function save(name, w, h) {
-  const blob = await new Promise((r) => renderer.domElement.toBlob(r, 'image/webp', 0.92));
-  await fetch(`/__save-render?name=${name}`, { method: 'POST', body: blob });
-  const img = document.createElement('img');
-  img.src = URL.createObjectURL(blob);
-  const fig = document.createElement('figure');
-  const cap = document.createElement('figcaption');
-  cap.textContent = `${name} (${w}×${h}, ${Math.round(blob.size / 1024)} KB)`;
-  fig.append(img, cap);
-  document.querySelector('#out').append(fig);
-  return { name, kb: Math.round(blob.size / 1024) };
-}
-
 function render(scene, camera, w, h) {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
@@ -371,38 +153,150 @@ function render(scene, camera, w, h) {
   renderer.render(scene, camera);
 }
 
-// Single product shots: same camera for all, so relative sizes are true.
-async function renderProducts() {
-  const W = 1000;
-  const H = 1250;
-  const results = [];
-  for (const p of PRODUCTS) {
-    const scene = makeScene();
-    const product = enableShadows(await p.build(p));
-    product.rotation.y = THREE.MathUtils.degToRad(-16);
-    scene.add(product, shadowCatcher(), contactShadow(p.width * 1.7, p.width * 0.9));
-    const camera = new THREE.PerspectiveCamera(21, W / H, 1, 400);
-    camera.position.set(0, 10, 66);
-    camera.lookAt(0, 8.6, 0);
-    render(scene, camera, W, H);
-    results.push(await save(`${p.id}.webp`, W, H));
-    dispose(scene);
-  }
-  return results;
+// Glass casts no hard shadow (its light passes); the solid parts cast and
+// receive them (the cap's shadow falls on the tube).
+// three.js measures a liquid's depth (thickness) in the model's own units
+// but how quickly it tints (attenuationDistance) in world units, so a
+// product built in centimetres here would come out far deeper in colour than
+// the same model on the site, where it is shown about 7 times smaller.
+// The pictures use the site's tint.
+const SITE_SCALE = 7;
+function castShadows(obj) {
+  obj.traverse((o) => {
+    if (!o.isMesh) return;
+    const solid = !(o.material.transmission > 0) && !o.material.userData.keepOpaque && o.name !== 'print';
+    o.castShadow = solid;
+    o.receiveShadow = solid;
+    if (o.material.transmission > 0 && Number.isFinite(o.material.attenuationDistance)) o.material.attenuationDistance *= SITE_SCALE;
+  });
+  return obj;
 }
 
-// Free GPU memory between shots (the software renderer runs out otherwise)
-function dispose(scene) {
+// Free everything a shot used: every texture, the shadow maps and the light
+// (the graphics memory runs out by the fifth product otherwise)
+function disposeAll(scene) {
   scene.traverse((o) => {
+    if (o.isLight && o.shadow?.map) o.shadow.map.dispose();
     if (!o.isMesh) return;
     o.geometry.dispose();
-    const mats = Array.isArray(o.material) ? o.material : [o.material];
-    mats.forEach((m) => {
-      ['map', 'metalnessMap'].forEach((k) => m[k]?.dispose());
+    (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => {
+      Object.values(m).forEach((v) => v?.isTexture && v.dispose());
       m.dispose();
     });
   });
   scene.environment?.dispose();
+}
+
+// ── Pictures with glass in them ──────────────────────────────
+// Glass cannot be rendered onto "nothing": it shows what is behind it. So
+// each picture is rendered twice, in front of black and in front of grey,
+// and the difference says how much light every pixel lets through, per
+// colour (difference matting). Tinted glass passes red more than blue, which
+// one transparency value cannot hold, so the colour is worked out for the
+// page it will sit on (the blush paper): over that paper the picture shows
+// exactly what the glass would, highlights included.
+const GREY = 0.6; // the light backdrop, kept inside the tone curve's straight part
+function matteBackdrop() {
+  // tone-mapped like everything seen through the glass, so the two match
+  const mat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), mat);
+  back.position.set(0, 0, -80);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), mat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.02;
+  const g = new THREE.Group();
+  g.add(back, floor);
+  g.userData.mat = mat;
+  return g;
+}
+
+function grab(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(renderer.domElement, 0, 0);
+  return ctx.getImageData(0, 0, w, h);
+}
+
+const toLin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const toSrgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+// the blush paper the pictures sit on (the stage's paper colour), as the
+// browser sees it (it blends see-through pictures in display colour)
+const PAGE_S = [0.957, 0.824, 0.839];
+const PAGE = PAGE_S.map(toLin);
+
+function renderMatte(scene, camera, w, h, backdrop) {
+  backdrop.userData.mat.color.setScalar(0);
+  render(scene, camera, w, h);
+  const K = grab(w, h);
+  backdrop.userData.mat.color.setScalar(GREY);
+  render(scene, camera, w, h);
+  const G = grab(w, h);
+  const out = document.createElement('canvas');
+  out.width = w;
+  out.height = h;
+  const ctx = out.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  // the grey backdrop as it came out (top-left corner), the measure of
+  // "everything passes"
+  const full = [0, 1, 2].map((ch) => toLin(G.data[ch] / 255) - toLin(K.data[ch] / 255));
+  for (let i = 0; i < K.data.length; i += 4) {
+    const k = [0, 0, 0];
+    const t = [0, 0, 0];
+    for (let ch = 0; ch < 3; ch++) {
+      k[ch] = toLin(K.data[i + ch] / 255);
+      t[ch] = Math.min(1, Math.max(0, (toLin(G.data[i + ch] / 255) - k[ch]) / full[ch]));
+    }
+    // what passes untinted is transparency; the tinted rest becomes colour
+    // (the faint residue of 8-bit rounding on the empty backdrop is cleared:
+    // the clearest glass is still about 10% opaque)
+    let a = 1 - Math.min(t[0], t[1], t[2]);
+    if (a < 0.02) a = 0;
+    // over the paper the glass shows k + t·paper (in light); the browser
+    // blends in display colour, so the colour is solved there
+    for (let ch = 0; ch < 3; ch++) {
+      const target = toSrgb(Math.min(1, k[ch] + t[ch] * PAGE[ch]));
+      const c = a > 0 ? (target - (1 - a) * PAGE_S[ch]) / a : 0;
+      img.data[i + ch] = Math.round(255 * Math.min(1, Math.max(0, c)));
+    }
+    img.data[i + 3] = Math.round(255 * Math.min(1, Math.max(0, a)));
+  }
+  ctx.putImageData(img, 0, 0);
+  return out;
+}
+
+async function saveCanvas(name, c) {
+  const blob = await new Promise((r) => c.toBlob(r, 'image/webp', 0.92));
+  await fetch(`/__save-render?name=${name}`, { method: 'POST', body: blob });
+  const img = document.createElement('img');
+  img.src = URL.createObjectURL(blob);
+  const fig = document.createElement('figure');
+  const cap = document.createElement('figcaption');
+  cap.textContent = `${name} (${c.width}×${c.height}, ${Math.round(blob.size / 1024)} KB)`;
+  fig.append(img, cap);
+  document.querySelector('#out').append(fig);
+  return { name, kb: Math.round(blob.size / 1024) };
+}
+
+// ── The product shots: same camera for all, so relative sizes are true ──
+async function renderProducts(only = null) {
+  const W = 1000;
+  const H = 1250;
+  const results = [];
+  for (const p of PRODUCTS.filter((x) => !only || only.includes(x.id))) {
+    const scene = makeScene();
+    const product = castShadows(await p.build(p));
+    product.rotation.y = THREE.MathUtils.degToRad(-8);
+    const backdrop = matteBackdrop();
+    scene.add(backdrop, product, shadowCatcher(0.16), contactShadow(p.width * 1.7, p.width * 0.9, 0.42));
+    const camera = new THREE.PerspectiveCamera(21, W / H, 1, 400);
+    camera.position.set(0, 10, 66);
+    camera.lookAt(0, 8.6, 0);
+    results.push(await saveCanvas(`${p.id}.webp`, renderMatte(scene, camera, W, H, backdrop)));
+    disposeAll(scene);
+  }
+  return results;
 }
 
 // ── Starter Kit box (rendered as layers so the site can open it) ──
@@ -411,8 +305,8 @@ async function kitParts() {
   const BD = 10.5;
   const BH = 7.6;
   const T = 0.35;
-  const outside = MAT.board(0xdcb0a4);
-  const inside = MAT.board(0xbd8b80);
+  const outside = board(0xdcb0a4);
+  const inside = board(0xbd8b80);
   const mk = (w, h, d, mat, x, y, z) => {
     const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 2, 0.06), mat);
     m.position.set(x, y, z);
@@ -469,20 +363,23 @@ async function kitParts() {
   lidTop.position.set(0, lidY + LH + 0.01, 0);
   lid.add(lidTop);
 
-  // Travel-size products standing in the box, in routine order
+  // Travel-size products standing in the box, in routine order (tiny in
+  // the picture, so their labels are drawn small: less graphics memory)
   const scale = 0.6;
   const gap = 1.2;
   const total = PRODUCTS.reduce((s, p) => s + p.width * scale, 0) + gap * (PRODUCTS.length - 1);
   let x = -total / 2;
   const bottles = [];
+  setLabelWidth(512);
   for (const p of PRODUCTS) {
-    const b = enableShadows(await p.build(p));
+    const b = castShadows(await p.build(p));
     b.scale.setScalar(scale);
     b.rotation.y = THREE.MathUtils.degToRad(-8);
     b.position.set(x + (p.width * scale) / 2, T, 0.4);
     x += p.width * scale + gap;
     bottles.push({ id: p.id, obj: b, height: new THREE.Box3().setFromObject(b).max.y });
   }
+  setLabelWidth(2048);
   return { back, front, lid, bottles, dims: { BW, BD, BH } };
 }
 
@@ -492,40 +389,31 @@ async function renderKit() {
   const scene = makeScene();
   const parts = await kitParts();
   const catcher = shadowCatcher(0.26);
-  scene.add(catcher, parts.back, parts.front, parts.lid, ...parts.bottles.map((b) => b.obj));
+  const backdrop = matteBackdrop();
+  scene.add(backdrop, catcher, parts.back, parts.front, parts.lid, ...parts.bottles.map((b) => b.obj));
   const camera = new THREE.PerspectiveCamera(22, W / H, 1, 400);
   camera.position.set(0, 27, 72);
   camera.lookAt(0, 6.5, 0);
-  camera.aspect = W / H;
-  camera.updateProjectionMatrix();
-
-  const all = [catcher, parts.back, parts.front, parts.lid, ...parts.bottles.map((b) => b.obj)];
-  const only = (...visible) => all.forEach((o) => (o.visible = visible.includes(o)));
-  const results = [];
 
   // Shadows need every object present to be cast, so layers that should
   // keep the box's shadow render with the catcher visible.
+  const all = [catcher, parts.back, parts.front, parts.lid, ...parts.bottles.map((b) => b.obj)];
+  const only = (...visible) => all.forEach((o) => (o.visible = visible.includes(o)));
+  const results = [];
   only(catcher, parts.back);
-  render(scene, camera, W, H);
-  results.push(await save('kit-back.webp', W, H));
-
+  results.push(await saveCanvas('kit-back.webp', renderMatte(scene, camera, W, H, backdrop)));
   only(parts.front);
-  render(scene, camera, W, H);
-  results.push(await save('kit-front.webp', W, H));
-
+  results.push(await saveCanvas('kit-front.webp', renderMatte(scene, camera, W, H, backdrop)));
   only(parts.lid);
-  render(scene, camera, W, H);
-  results.push(await save('kit-lid.webp', W, H));
-
+  results.push(await saveCanvas('kit-lid.webp', renderMatte(scene, camera, W, H, backdrop)));
   for (const b of parts.bottles) {
     only(b.obj);
-    render(scene, camera, W, H);
-    results.push(await save(`kit-${b.id}.webp`, W, H));
+    results.push(await saveCanvas(`kit-${b.id}.webp`, renderMatte(scene, camera, W, H, backdrop)));
   }
 
   // Where things land on screen, so the site can hide the bottles inside
   // the box before it opens (as fractions of the image height).
-  const toY = (v) => ((1 - v.clone().project(camera).y) / 2);
+  const toY = (v) => (1 - v.clone().project(camera).y) / 2;
   const { BD, BH } = parts.dims;
   const meta = {
     width: W,
@@ -536,6 +424,7 @@ async function renderKit() {
   };
   await fetch('/__save-render?name=kit-meta.json', { method: 'POST', body: JSON.stringify(meta, null, 2) });
   results.push({ name: 'kit-meta.json', meta });
+  disposeAll(scene);
   return results;
 }
 
@@ -549,8 +438,7 @@ async function renderAll() {
   return out;
 }
 
-// Live 3D for the website: export a product as a .glb model (labels baked
-// in as textures), saved to public/assets/products/<id>.glb.
+// ── The live 3D models for the site (labels baked in as textures) ──
 //   exportGLB()            → the Glow Serum
 //   exportGLB('cleanser')  → one product;  exportAllGLB() → all five
 async function exportGLB(id = 'serum') {
@@ -572,6 +460,7 @@ async function exportAllGLB() {
 }
 
 window.renderAll = renderAll;
+window.renderProducts = renderProducts;
 window.exportGLB = exportGLB;
 window.exportAllGLB = exportAllGLB;
 document.querySelector('#render').addEventListener('click', renderAll);

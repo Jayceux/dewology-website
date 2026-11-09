@@ -11,9 +11,9 @@
 //  Loaded on demand (three.js is large), after the first paint.
 // ─────────────────────────────────────────────────────────────
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PIGMENTS, LIGHTS } from './stops';
+import { studioEnvironment } from './studioEnv';
 
 const MAX_WASHES = 12;
 const MAX_BEADS = 8;
@@ -49,6 +49,9 @@ const fragment = /* glsl */ `
   uniform float uWaterAmt;
   uniform float uWaterSeed;
   uniform vec4 uGlow;      // the light behind a product: centre (xy), radius (z), strength (w)
+  uniform float uCheap;    // 1 while drawn for glass to look through: no fine grain or washes
+  uniform float uCaus;     // a caustic: light focused through a glass product onto the water
+  uniform vec3 uCausCol;   // … in the colour of what is inside it
   uniform vec4 uRip[2];    // rings: where (xy), how long ago (z, < 0 = none), squash (w, < 1 = on the water)
   uniform float uRipS[2];  // the size of what made them
   varying vec2 vUv;
@@ -73,15 +76,20 @@ const fragment = /* glsl */ `
     // cold-press paper, warming a touch as the presentation goes on
     // blush paper in the bottle's hue, deepening a touch as the presentation goes on
     vec3 paper = mix(vec3(0.957, 0.824, 0.839), vec3(0.945, 0.792, 0.812), uWarm);
-    float tooth = fbm(p * 140.0);
-    float fibre = noise(vec2(p.x * 900.0, p.y * 40.0));
-    paper *= 0.972 + 0.04 * tooth + 0.01 * fibre;
+    // (seen through glass, the paper's grain and the washes are lost in the
+    // refraction, so that copy of the page skips them: it is drawn every frame)
+    float tooth = 0.5;
+    if (uCheap < 0.5) {
+      tooth = fbm(p * 140.0);
+      float fibre = noise(vec2(p.x * 900.0, p.y * 40.0));
+      paper *= 0.972 + 0.04 * tooth + 0.01 * fibre;
+    }
     // the edges of the sheet sit a little deeper, out of the light
     paper *= 1.0 - 0.075 * smoothstep(0.35, 1.2, length(p * vec2(0.75, 1.0)));
     vec3 col = paper;
 
     for (int i = 0; i < MAX; i++) {
-      if (i >= uCount) break;
+      if (i >= uCount || uCheap > 0.5) break;
       if (uAmt[i] < 0.002) continue;
       vec2 q = p - uPos[i];
       q.y /= max(uSq[i], 0.05);
@@ -129,6 +137,7 @@ const fragment = /* glsl */ `
     // crescent low inside; a window highlight sits top left; it casts a
     // soft shadow down and to the right.
     for (int i = 0; i < ${MAX_BEADS}; i++) {
+      if (uCheap > 0.5) break;
       vec4 B = uBead[i];
       if (B.w < 0.003) continue;
       vec2 q = (p - B.xy) / B.z;
@@ -177,6 +186,20 @@ const fragment = /* glsl */ `
       float cs = exp(-pow(d.x / 0.28, 2.0) - pow((d.y - 0.2) / 0.1, 2.0));
       col *= 1.0 - cs * 0.16 * uWaterAmt * uWaterShade;
       poolIn = inWater * uWaterAmt;
+      // Light focused through a glass product lands on the water in front of
+      // it, away from the key light (front right): a soft glow in the colour
+      // of what is inside, with a brighter core near the base. In these
+      // water coordinates a round spot already lies flat in perspective.
+      if (uCaus > 0.002) {
+        vec2 c = (p - uWater.xy) / uWater.zw - vec2(0.14, -0.06);
+        float a = -0.45;
+        c = mat2(cos(a), -sin(a), sin(a), cos(a)) * c;
+        float spread = exp(-dot(c / vec2(0.26, 0.13), c / vec2(0.26, 0.13)) * 1.6);
+        vec2 k = c - vec2(-0.05, 0.05);
+        float core = exp(-dot(k / vec2(0.1, 0.035), k / vec2(0.1, 0.035)) * 1.4);
+        float ripple = 0.85 + 0.3 * noise(c * vec2(18.0, 30.0) + uWaterSeed); // caustic net
+        col += uCausCol * (spread * 0.13 + core * 0.22 * ripple) * uCaus * inWater;
+      }
     }
 
     // Water rings: a short train of low waves running out and fading,
@@ -238,24 +261,28 @@ export function createStage(container, { reduce = false, products3d = true, mode
   renderer.toneMapping = THREE.NeutralToneMapping;
   // softer than a dark stage: on paper, strong light washes the pink to white
   renderer.toneMappingExposure = 0.82;
-  if ('transmissionResolutionScale' in renderer) renderer.transmissionResolutionScale = 0.6;
+  // glass only ever shows the soft paper behind it, so the copy of the page
+  // it looks through can be drawn at half resolution (and cheaply: uCheap)
+  if ('transmissionResolutionScale' in renderer) renderer.transmissionResolutionScale = 0.5;
   const canvas = renderer.domElement;
   canvas.className = 'paint-stage__canvas';
   canvas.setAttribute('aria-hidden', 'true');
   container.appendChild(canvas);
 
   const scene = new THREE.Scene();
+  // the products (glass and liquid) are lit like a product photograph: soft
+  // boxes and tall strip lights (see studioEnv.js), with a little direct light
   const pmrem = new THREE.PMREMGenerator(renderer);
-  const env = pmrem.fromScene(new RoomEnvironment(), 0.04);
+  const env = pmrem.fromScene(studioEnvironment(), 0.02);
   scene.environment = env.texture;
-  scene.environmentIntensity = 0.7;
-  const key = new THREE.DirectionalLight(0xfff4ee, 1.7);
+  scene.environmentIntensity = 1.0;
+  const key = new THREE.DirectionalLight(0xfff4ee, 1.1);
   key.position.set(-4, 8, 6);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xffffff, 1.8);
+  const rim = new THREE.DirectionalLight(0xffffff, 1.2);
   rim.position.set(5, 3, -4);
   scene.add(rim);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xf3c6cc, 0.35));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xf3c6cc, 0.2));
 
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
   camera.position.set(0, 0, CAM_Z);
@@ -278,6 +305,9 @@ export function createStage(container, { reduce = false, products3d = true, mode
     uWaterAmt: { value: 0 },
     uWaterSeed: { value: 0 },
     uGlow: { value: new THREE.Vector4(0, 0, 1, 0) },
+    uCheap: { value: 0 },
+    uCaus: { value: 0 },
+    uCausCol: { value: new THREE.Color(1, 0.6, 0.68) },
     uRip: { value: [new THREE.Vector4(0, 0, -1, 1), new THREE.Vector4(0, 0, -1, 1)] },
     uLight: { value: new Array(MAX_WASHES).fill(0) },
     uBead: { value: Array.from({ length: MAX_BEADS }, () => new THREE.Vector4(0, 0, 0.01, 0)) },
@@ -290,6 +320,12 @@ export function createStage(container, { reduce = false, products3d = true, mode
   );
   paper.position.z = PAPER_Z;
   scene.add(paper);
+  // drawn into a render target, the paper is the copy glass looks through:
+  // the cheap version (see uCheap)
+  paper.onBeforeRender = (r) => {
+    u.uCheap.value = r.getRenderTarget() ? 1 : 0;
+    paper.material.uniformsNeedUpdate = true;
+  };
 
   let vw = 1;
   let vh = 1;
@@ -450,14 +486,21 @@ export function createStage(container, { reduce = false, products3d = true, mode
           o.material.polygonOffsetFactor = -2;
           o.renderOrder = 1;
         }
-        o.material.transparent = true;
+        // what sits inside glass (liquid, cream, the dropper) stays opaque,
+        // so the glass can show it; it turns see-through only to fade
+        o.material.transparent = !o.material.userData.keepOpaque;
       });
       const group = new THREE.Group();
       group.add(model);
       group.visible = false;
       group.userData.h = size.y;
       scene.add(group);
-      productModels[id] = { ready: true, group, clip, ...reflectionOf(model, clip.down) };
+      // glass products bring their caustic (set in the studio)
+      let caustic = null;
+      model.traverse((o) => {
+        if (o.userData.caustic) caustic = o.userData.caustic;
+      });
+      productModels[id] = { ready: true, group, clip, caustic, ...reflectionOf(model, clip.down) };
     });
     return productModels[id];
   }
@@ -477,6 +520,12 @@ export function createStage(container, { reduce = false, products3d = true, mode
     copy.traverse((o) => {
       if (!o.isMesh) return;
       o.material = o.material.clone();
+      // glass in the reflection: a faint tinted shape is enough (and cheap)
+      if (o.material.transmission > 0) {
+        o.material.transmission = 0;
+        o.material.color.set(o.material.userData.reflColor || '#eba2ac');
+        o.material.roughness = Math.max(o.material.roughness, 0.2);
+      }
       o.material.transparent = true;
       o.material.depthWrite = false;
       o.material.clippingPlanes = [clipDown];
@@ -506,7 +555,9 @@ export function createStage(container, { reduce = false, products3d = true, mode
 
   function setOpacity(group, a) {
     group.traverse((o) => {
-      if (o.isMesh) o.material.opacity = a;
+      if (!o.isMesh) return;
+      o.material.opacity = a;
+      if (o.material.userData.keepOpaque) o.material.transparent = a < 0.995;
     });
   }
 
@@ -685,10 +736,16 @@ export function createStage(container, { reduce = false, products3d = true, mode
       glow.r += (gr - glow.r) * k;
       glow.w += (gw - glow.w) * Math.min(1, dt * 3);
       u.uGlow.value.set(glow.x, glow.y, glow.r, glow.w);
+      // the caustic of the glass product standing here, easing in with it
+      const caus = productShown && !productShown.hold ? productModels[productShown.id]?.caustic : null;
+      if (caus) u.uCausCol.value.setRGB(...caus.color);
+      const cw = caus ? caus.strength * Math.min(1, productShown.show) * water.amt : 0;
+      u.uCaus.value += (cw - u.uCaus.value) * Math.min(1, dt * 3);
     } else {
       u.uWaterAmt.value = 0;
       glow.w = 0;
       u.uGlow.value.w = 0;
+      u.uCaus.value = 0;
     }
 
     // water rings, pinned to where they started
@@ -779,7 +836,9 @@ export function createStage(container, { reduce = false, products3d = true, mode
       const age = clock - item.t0;
       const lift = reduce || item.rise ? 0 : worldH * 0.06 * (1 - Math.min(1, age / 0.55)) ** 3;
       const sink = item.rise ? worldH * 1.04 * (1 - Math.min(1, age / 1.3)) ** 3 : 0;
-      const turn = -0.35 + Math.sin(clock * 0.4) * 0.32;
+      // a slow sway shows it is real; it sways about the front, so the
+      // label faces the room
+      const turn = -0.06 + Math.sin(clock * 0.4) * 0.26;
       item.group.scale.setScalar(scale);
       item.group.position.set(x, y + lift - sink, 0);
       if (item.clip) {
